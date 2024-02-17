@@ -1,0 +1,66 @@
+﻿@rendermode InteractiveServer
+@page "/typingGame"
+@inject IJSRuntime JSRuntime
+@using SubtitlesParser.Classes.Parsers;
+@using SubtitlesParser.Classes
+
+<script src="js/player.js"></script>
+
+<div class="video-container">
+    <video id="my-video" class="video-js" controls preload="auto" width="640" height="264">
+        <source src="Videos/video1.mp4" type="video/mp4" />
+        <track id="captions" kind="subtitles" label="English" src="/Captions/video1.txt" srclang="en" default>
+
+        <p class="vjs-no-js">
+            To view this video please enable JavaScript, and consider upgrading to a web browser that
+            <a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
+        </p>
+    </video>
+    <input class="textInput" type="text" id="typingInput">
+</div>
+
+@code {
+    private IList<SubtitleItem> subtitles = GetSubtitleItems();
+    private int currentIndex = 0;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if(firstRender) {
+            await JSRuntime.InvokeVoidAsync("initVideoPlayer", "my-video", DotNetObjectReference.Create(this));
+            await JSRuntime.InvokeVoidAsync("setSubtitle", subtitles[currentIndex]);
+        }
+    }
+
+    public static IList<SubtitleItem> GetSubtitleItems()
+    {
+        var vttFilePath = Path.Combine("Captions", "video1.txt");
+        using (var fileStream = File.OpenRead(Path.Combine(Environment.CurrentDirectory, "wwwroot", vttFilePath)))
+        {
+            var parser = new VttParser();
+            return parser.ParseStream(fileStream, System.Text.Encoding.UTF8);
+        }
+    }
+
+    // protected override void OnInitialized()
+    // {
+    //     var vttFilePath = Path.Combine("Captions", "video1.txt"); 
+    //     using (var fileStream = File.OpenRead(Path.Combine(Environment.CurrentDirectory, "wwwroot", vttFilePath)))
+    //     {
+    //         var parser = new VttParser();
+    //         subtitles = parser.ParseStream(fileStream, System.Text.Encoding.UTF8);
+    //     }
+    // }
+
+    [JSInvokable("updateSubtitles")]
+    public async Task UpdateSubtitles(decimal currentTime)
+    {
+        if (subtitles?.Count > currentIndex && 
+            (currentTime * 1000) > subtitles[currentIndex].EndTime)
+        {
+            currentIndex++;
+            await JSRuntime.InvokeVoidAsync("setSubtitle", subtitles[currentIndex]);
+
+        }
+
+    }
+}

@@ -1,0 +1,20 @@
+﻿
+.video-container {
+    position: relative;
+    max-width: 70%;
+    margin: 0 auto;
+}
+
+.video-container video {
+    display: block;
+    margin: 0 auto;
+    width: 100%;
+    height: auto;
+}
+
+.textInput {
+    margin-top: 20px;
+    height: 50px;
+    font-size: 30px;
+    width: 100%;
+}
