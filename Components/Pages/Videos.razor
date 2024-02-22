@@ -1,0 +1,145 @@
+﻿@rendermode InteractiveServer
+@page "/Videos"
+@using Syncfusion.Blazor.Grids;
+@using Syncfusion.Blazor.DropDowns;
+@using Syncfusion.Blazor.Buttons;
+@using InteractiveTyingGameBlazor.DbModels;
+@using InteractiveTyingGameBlazor.Utils;
+@using InteractiveTyingGameBlazor.Models;
+@using System.Collections.ObjectModel;
+@using InteractiveTyingGameBlazor.Data.Services;
+@using Microsoft.AspNetCore.Authorization;
+@inject RegisteredVideosService data;
+@inherits Common;
+@attribute [Authorize]
+
+<SfGrid DataSource="@myVideos" Toolbar="@toolbarItems">
+	<GridEditSettings  AllowAdding="true" AllowEditing="true" AllowDeleting="true"></GridEditSettings>
+    <GridEvents OnActionComplete="@ActionCompleteHandler" OnActionBegin="@ActionBeginHandler" TValue="@RegisteredVideo"></GridEvents>
+	<GridColumns>
+		<GridColumn Field=@nameof(RegisteredVideo.Id) IsPrimaryKey="true" TextAlign="TextAlign.Center"  Visible="false"></GridColumn>
+        <GridColumn Field=@nameof(RegisteredVideo.Title) HeaderText="Name" TextAlign="TextAlign.Center" ValidationRules="@Required"></GridColumn>
+        <GridColumn Field=@nameof(RegisteredVideo.URL) HeaderText="Url" TextAlign="TextAlign.Center" ValidationRules="@UrlValidation"></GridColumn>
+        <GridColumn Field=@nameof(RegisteredVideo.Language) HeaderText="Language" TextAlign="TextAlign.Center" 
+        ValidationRules="@Required" AllowEditing="true" EditType="EditType.DropDownEdit">
+            <EditTemplate Context="context">
+                <SfComboBox TItem="string" TValue="string" DataSource="@currentLanguageOptions"
+                            Placeholder="Select a language"
+                            Value="@((context as RegisteredVideo).Language)"
+                            ValueChanged="@(value => (context as RegisteredVideo).Language = value)" 
+                            AllowCustom="false">
+                            <ComboBoxEvents TItem="string" TValue="string"  OnOpen="@(async () => await UpdateLanguageOptions((context as RegisteredVideo).URL))">
+                            </ComboBoxEvents>
+                </SfComboBox>
+            </EditTemplate>
+        </GridColumn>
+
+        <GridColumn Field=@nameof(RegisteredVideo.Category) TextAlign="TextAlign.Center"  ValidationRules="@Required" HeaderText="Category" EditType="EditType.DropDownEdit">
+            <EditTemplate Context="context">
+                <SfComboBox TItem="string" TValue="string" DataSource="@categoryOptions"
+                            Value="@GetCategoryString(context as RegisteredVideo)"
+                            ValueChanged="@(val => SetCategoryFromString(context as RegisteredVideo, val))"
+                            Placeholder="Select a Category" AllowCustom="false">
+                </SfComboBox>
+            </EditTemplate>
+        </GridColumn>
+        @if (IsAdmin)
+        {
+            <GridColumn HeaderText="Global" TextAlign="TextAlign.Center" Type="ColumnType.Boolean">
+                <Template Context="context">
+                    <SfCheckBox Checked="@((context as RegisteredVideo).IsGlobal)" Disabled=true></SfCheckBox>
+                </Template>
+                <EditTemplate Context="context">
+                    <SfCheckBox @bind-Checked="@((context as RegisteredVideo).IsGlobal)"></SfCheckBox>
+                </EditTemplate>
+            </GridColumn>
+        }
+	</GridColumns>
+</SfGrid>
+
+@code {
+    private List<string> categoryOptions = Enum.GetNames(typeof(CategoryType)).ToList();
+
+    public ObservableCollection<string> currentLanguageOptions = new(); 
+    private string? currentVideoUrl = null;
+    private async Task UpdateLanguageOptions(string videoUrl)
+    {
+        if (!string.IsNullOrEmpty(videoUrl) && currentVideoUrl != videoUrl)
+        {
+            currentVideoUrl = videoUrl;
+            var newOptions = (await YTMetadataExtract.GetTranscripts(videoUrl)).Select(i => i.Code);
+            currentLanguageOptions.Clear();
+            foreach (var option in newOptions)
+            {
+                currentLanguageOptions.Add(option);
+            }
+            StateHasChanged();
+        }
+
+        if (string.IsNullOrEmpty(videoUrl))
+            currentLanguageOptions.Clear();
+
+    }
+    private string GetCategoryString(RegisteredVideo video)
+    {
+        return video?.Category.ToString();
+    }
+
+    private void SetCategoryFromString(RegisteredVideo video, string value)
+    {
+        if (video != null && Enum.TryParse<CategoryType>(value, out var category))
+        {
+            video.Category = category;
+        }
+    }
+
+    ValidationRules Required = new()
+        {
+            Required = true
+        };
+
+    ValidationRules UrlValidation = new()
+        {
+            Required = true,
+            RegexPattern = @"^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$",
+        };
+
+    private List<RegisteredVideo> myVideos = new();
+
+    private string[] toolbarItems = new string[] { "Add", "Edit", "Delete", "Update", "Cancel" };
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        myVideos = (await data.GetUserVideos()).ToList();
+    }
+
+    public void ActionBeginHandler(ActionEventArgs<RegisteredVideo> Args)
+    {
+        if (Args.RequestType.Equals(Syncfusion.Blazor.Grids.Action.Save))
+        {
+            Args.Data.UserId = userID;
+
+            if (Args.Action == "Add")
+            {
+                data.Add(Args.Data);
+            }
+            else
+            {
+                data.Update(Args.Data);
+            }
+        }
+        if (Args.RequestType.Equals(Syncfusion.Blazor.Grids.Action.Delete))
+        {
+            data.Delete(Args.Data);
+        }
+    }
+
+    public async Task ActionCompleteHandler(ActionEventArgs<RegisteredVideo> Args)
+    {
+        if (Args.RequestType.Equals(Syncfusion.Blazor.Grids.Action.Save))
+        {
+            myVideos = (await data.GetUserVideos()).ToList();
+        }
+    }
+}

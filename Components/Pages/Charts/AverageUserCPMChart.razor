@@ -1,0 +1,17 @@
+﻿@using InteractiveTyingGameBlazor.Models;
+@using Type = Syncfusion.Blazor.Charts.ValueType;
+@using InteractiveTyingGameBlazor.Data.Services;
+
+@inject TypingResultService TypingResultService
+
+<GenericChart Data="@chartData" XTitle="Date" YTitle="Average CPM" XLabelFormat="d" XValueType="@Type.DateTime" />
+
+@code {
+
+    private List<ChartModel<DateTime, int>> chartData = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        chartData = (await TypingResultService.GetUserDailyAverageCPMs()).ToList(); 
+    }
+ }

@@ -1,0 +1,13 @@
+﻿@using InteractiveTyingGameBlazor.Models;
+@using InteractiveTyingGameBlazor.Data.Services;
+@inject TypingResultService TypingResultService
+
+<GenericChart Data="@chartData" XTitle="CPM" YTitle="People"/>
+
+@code {
+    private static List<ChartModel<int, int>> chartData = new();
+    protected override void OnInitialized()
+    {
+        chartData = TypingResultService.GetAverageCPM().ToList();
+    }
+}

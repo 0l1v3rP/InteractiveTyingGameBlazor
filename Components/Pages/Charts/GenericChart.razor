@@ -1,0 +1,37 @@
+﻿@using Syncfusion.Blazor.Charts
+@using InteractiveTyingGameBlazor.Models;
+@using Type = Syncfusion.Blazor.Charts.ValueType;
+	
+@typeparam T1
+@typeparam T2
+
+<SfChart>
+    <ChartSeriesCollection>
+        <ChartSeries DataSource="@Data" XName="X" YName="Y" />
+    </ChartSeriesCollection>
+    <ChartPrimaryXAxis Title="@XTitle" ValueType="@XValueType" LabelFormat="@XLabelFormat" />
+    <ChartPrimaryYAxis Title="@YTitle" ValueType="@YValueType" LabelFormat="@YLabelFormat" />
+</SfChart>
+
+@code {
+    [Parameter]
+    public List<ChartModel<T1, T2>> Data { get; set; }
+
+    [Parameter]
+    public string XTitle { get; set; } = "";
+
+    [Parameter]
+    public string YTitle { get; set; } = "";
+
+    [Parameter]
+    public Type XValueType { get; set; } = Type.Double;
+
+    [Parameter]
+    public Type YValueType { get; set; } = Type.Double;
+
+    [Parameter]
+    public string XLabelFormat { get; set; } = "";
+
+    [Parameter]
+    public string YLabelFormat { get; set; } = "";
+}

@@ -1,0 +1,40 @@
+﻿<GenericModal IsOpen="@IsOpen" Title="Result" OnClose="@OnClose" >
+    <div class="text-center">
+        <h3>Score</h3>
+        <p><strong>CPM:</strong> @CPM</p>
+        <p><strong>Accuracy:</strong> @Accuracy%</p>
+        @if(Placement != 0){
+            <p><strong>Placement:</strong> @Placement</p>
+        }
+        <div class="d-flex justify-content-between">
+            <button class="btn btn-primary mt-3" @onclick="@Restart">Restart</button>
+            <button class="btn btn-primary mt-3" @onclick="@NewGame">New Game</button>
+        </div>
+    </div>
+</GenericModal>
+
+@code {
+    [Parameter]
+    public bool IsOpen { get; set; }
+
+    [Parameter]
+    public int CPM { get; set; }
+
+    [Parameter]
+    public float Accuracy { get; set; }
+
+    [Parameter]
+    public int Placement { get; set; }
+
+    [Parameter]
+
+    public EventCallback Restart { get; set; }
+
+    [Parameter]
+
+    public EventCallback NewGame { get; set; }
+
+    [Parameter]
+
+    public EventCallback OnClose { get; set; }
+}

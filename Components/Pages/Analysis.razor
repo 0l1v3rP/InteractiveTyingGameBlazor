@@ -1,0 +1,15 @@
+﻿@page "/Account/Analysis"
+@rendermode InteractiveServer
+@using Syncfusion.Blazor.Charts
+@using InteractiveTyingGameBlazor.Components.Pages.Charts;
+@using Data.Services;
+@using Microsoft.AspNetCore.Authorization
+@inherits Common;
+@inject TypingResultService TypingResultService;
+
+@attribute [Authorize]
+
+<AverageUserCPMChart/>
+<UsersCPMStatisticChart/>
+@code {	
+}

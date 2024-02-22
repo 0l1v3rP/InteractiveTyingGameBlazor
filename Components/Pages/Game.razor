@@ -1,0 +1,45 @@
+﻿@* @page "/"
+@inject IJSRuntime JSRuntime
+@inject NavigationManager Navigation
+@inject TypingResultService TypingResultService
+
+@using InteractiveTyingGameBlazor.Components
+@using InteractiveTyingGameBlazor.Models
+@using InteractiveTyingGameBlazor.Utilities
+
+<script src="js/player.js"></script>
+
+<GameView CanPlay="@canPlay" SpinnerVisibility="@spinnerVisiblity" 
+          CPM="@CPM" Accuracy="@Accuracy" Time="@time" 
+          TypingInputEnabled="!spinnerVisiblity && canPlay" 
+          OnTypingInput="@HandleTypingInput" />
+
+<SfSpinner @bind-Visible="@spinnerVisiblity" />
+<VideoModal IsOpen="@IsVideoModalOpen" OnConfigureOptions="@ConfigureGame" UserId="@userID" />
+<ResultModal IsOpen="@IsResultModalOpen" OnNewGame="@NewGame" OnClose="@ResultClose" 
+             OnRestart="@Restart" Accuracy="@Accuracy" CPM="@CPM" />
+
+@code {
+    // State properties
+    private bool canPlay = false;
+    private bool spinnerVisiblity = false;
+    private GameTimer gameTimer = new GameTimer();
+    private GameStats gameStats = new GameStats();
+    private VideoGameService videoGameService = new VideoGameService(TypingResultService, JSRuntime);
+
+    // Lifecycle methods
+    protected override async Task OnAfterRenderAsync(bool firstRender) => await videoGameService.InitializeVideoPlayer(firstRender);
+
+    // Event handlers
+    private void HandleTypingInput(string input) => videoGameService.ProcessTypingInput(input);
+
+    // Modal dialog interactions
+    private void ResultClose() => videoGameService.CloseResultModal();
+
+    private async Task Restart() => await videoGameService.RestartGame();
+
+    private void NewGame() => videoGameService.InitiateNewGame();
+
+    private async Task ConfigureGame(GameConfig config) => await videoGameService.ConfigureGame(config);
+}
+ *@

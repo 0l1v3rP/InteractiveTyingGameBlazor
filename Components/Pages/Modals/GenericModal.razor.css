@@ -1,0 +1,7 @@
+﻿.modal {
+    overflow-y: auto;
+}
+
+.show {
+    display: block;
+}

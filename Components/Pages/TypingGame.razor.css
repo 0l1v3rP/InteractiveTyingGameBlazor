@@ -1,20 +1,53 @@
 ﻿
-.video-container {
+.game-container {
     position: relative;
     max-width: 70%;
     margin: 0 auto;
 }
-
-.video-container video {
-    display: block;
-    margin: 0 auto;
-    width: 100%;
-    height: auto;
+.stats-container {
+    background-color: #f2f2f2;
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 10px;
+    width: 860px;
 }
+
+.stats-item {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+}
+
+.cpm-color {
+    color: #007BFF;
+}
+
+.accuracy-color {
+    color: #28a745;
+}
+
+.time-color {
+    color: #dc3545;
+}
+
 
 .textInput {
     margin-top: 20px;
     height: 50px;
     font-size: 30px;
+    width: 860px;
+}
+
+#video-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
+    height: 100%;
+    background-color: black;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
 }

@@ -1,0 +1,16 @@
+﻿@using System.Security.Claims;
+@using InteractiveTyingGameBlazor.Extensions
+@inject AuthenticationStateProvider AuthenticationStateProvider;
+
+@code {
+    protected string userID = "";
+    protected bool IsAdmin = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        userID = user.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Concat("Anonymous",Guid.NewGuid().ToString());
+        IsAdmin = user.IsInRole("Admin");
+    }   
+}
