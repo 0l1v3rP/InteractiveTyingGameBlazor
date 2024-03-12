@@ -5,19 +5,35 @@ using System.Collections.Generic;
 
 namespace InteractiveTyingGameBlazor.Models
 {
-    public class GameSession
+    public class GameSession(double seed, int playersNum, GameConfig config) : BaseEntity
     {
         public event Action? OnMatchFinished;
-        public Dictionary<string, Game> PlayerGameStates { get; private set; } = [];
-        public double Seed { get; private set; }
-        public GameSession(double seed, params string[] playerIds)
+        public event Func<Task>? OnMatchStart;
+        public Dictionary<string, Game> PlayerGameStates { get; } = [];
+        public double Seed { get; } = seed;
+        public int PlayersNum { get; } = playersNum;
+        public GameConfig Config { get; } = config;
+
+        public bool Started { get; set; } = false;
+
+        public bool AddPlayer(string playerId)
         {
-            foreach (var playerId in playerIds)
-            {
-                PlayerGameStates[playerId] = new Game(); 
+            if (PlayerGameStates.Count < PlayersNum)
+            { 
+                PlayerGameStates[playerId] = new Game();
+                return true;
             }
-            Seed = seed;
+            return false;
         }
+
+        public void TryToStartMatch()
+        {  
+            if(PlayerGameStates.Count == PlayersNum)
+            {
+                OnMatchStart?.Invoke();
+            }
+        }
+
 
         public void SetPlayerReady(string playerId, bool ready)
         {
@@ -59,9 +75,6 @@ namespace InteractiveTyingGameBlazor.Models
 
         public void UnregisterPlayer(string playerId)
             => PlayerGameStates.Remove(playerId);        
-
-        public int PlayerCount()
-            => PlayerGameStates.Count;
 
         public bool PlayerExists(string playerId)
             => PlayerGameStates.ContainsKey(playerId);

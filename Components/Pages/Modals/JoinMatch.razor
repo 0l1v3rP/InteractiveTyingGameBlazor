@@ -1,0 +1,61 @@
+﻿@using InteractiveTyingGameBlazor.Models;
+@using InteractiveTyingGameBlazor.MatchMaking;
+@inject MatchmakingService _matchMaking
+
+@if (sessions == null || sessions.Count == 0)
+{
+    <p>There are no matches.</p>
+}
+else
+{
+    <ul class="list-group">
+        @foreach (var session in sessions)
+        {
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                    <h5>@session.Config.Title</h5>
+                    <p>Time: @session.Config.Time minute | Players: @string.Join("/", session.PlayerGameStates.Count, session.PlayersNum)</p>
+                </div>
+                <button class="btn btn-primary" @onclick="() => JoinSession(session)">Join</button>
+            </li>
+        }
+    </ul>
+}
+
+@code {
+    [Parameter]
+    public string? UserId { get; set; }
+
+    [Parameter]
+    public EventCallback<GameConfig> ConfigureOptions { get; set; }
+
+    [Parameter]
+    public EventCallback OpenWaitingRoom { get; set; }
+
+    [Parameter]
+    public EventCallback CloseWaitingRoom { get; set; }
+
+    private List<GameSession> sessions;
+
+    protected override async Task OnInitializedAsync()
+    {
+        sessions = _matchMaking.Sessions.Where(i => i.PlayerGameStates.Count < i.PlayersNum && !i.Started).ToList();
+    }
+
+    private async Task JoinSession(GameSession session)
+    {
+        await InvokeAsync(async () =>
+        {
+            await OpenWaitingRoom.InvokeAsync();
+            _matchMaking.JoinMatch(session.Id, UserId, OnJoin);
+        });
+    }
+
+    private async Task OnJoin() {
+        await InvokeAsync(async () =>
+        {
+            await CloseWaitingRoom.InvokeAsync();
+            await ConfigureOptions.InvokeAsync();
+        });
+    }
+}

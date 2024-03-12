@@ -1,0 +1,10 @@
+﻿<GenericModal Title="Waiting" IsOpen="IsOpen" OnClose="@OnClose">
+	<p>Waiting for other players to join..</p>
+</GenericModal>
+@code {
+	[Parameter]
+	public bool IsOpen { get; set; }
+
+	[Parameter]
+	public EventCallback OnClose { get; set; }
+}

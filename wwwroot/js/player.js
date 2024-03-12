@@ -106,7 +106,6 @@
         input.value = '';
     }
 }
-
 function setCursorToStart() {
     document.getElementById('typingInput').setSelectionRange(0, 0);
 }
@@ -172,3 +171,7 @@ function normalizeSubtitle(subtitle) {
         .replace(/…/g, '...')
         .replace(/‒/g, '-')
 }
+
+window.addEventListener('beforeunload', async () => {
+    await DotNet.invokeMethodAsync('InteractiveTyingGameBlazor', 'Dispose');
+});

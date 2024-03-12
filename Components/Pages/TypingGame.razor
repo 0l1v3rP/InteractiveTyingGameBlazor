@@ -63,13 +63,15 @@
 
     <input class="textInput" type="text" id="typingInput" autocomplete="off">
 </div>
+<GameModal></GameModal>
 <SfSpinner @bind-Visible="@spinnerVisiblity" />
-<VideoModal IsOpen="@IsVideoModalOpen" ConfigureOptions="@ConfigureGame" UserId="@userID"/>
+
+<GameModal IsOpen="@IsVideoModalOpen" ConfigureOptions="@ConfigureGame" UserId="@userID"/>
 <ResultModal IsOpen="@IsResultModalOpen" NewGame="@NewGame" OnClose="@ResultClose"
-             Restart="@Restart" Accuracy="GetAccuracy()" CPM="GetCPM()" Placement="GetPlacement()"/>
+             Accuracy="GetAccuracy()" CPM="GetCPM()" Placement="GetPlacement()" /> @* Restart="@Restart"  *@
 
 @code {
-        // private bool canPlay = false;
+    // private bool canPlay = false;
     public GameSession? Session { get; set; } = null;
     private bool spinnerVisiblity = false; 
     private Timer? timer = null;
@@ -95,31 +97,33 @@
         IsResultModalOpen = false;
         await SetDefault();
     }
-    private async Task Restart()
-    {
-        await InitGame();
-        await ResultClose();
-    }
+    // private async Task Restart()
+    // {
+    //     await InitGame();
+    //     await ResultClose();
+    // }
 
     private async Task NewGame()
     {
+        _matchmaking.UnregisterFromSession(userID);
+        Session = null;
         IsVideoModalOpen = true;
         await ResultClose();
     }
 
     private void AfterSubmit()
     {
-        // TypingResult result = new()
-        // {
-        //     CPM = Session.PlayerGameStates[userID].CPM,
-        //         Accuracy = Session.PlayerGameStates[userID].Accuracy,
-        //     Date = DateTime.UtcNow,
-        //     VideoId = config.URL,
-        //     UserId = userID,
-        //     MissTypedChars = missTypedChars.Select(i => new MissTypedChar(i.second, i.missChar)).ToList(),
+        TypingResult result = new()
+        {
+            CPM = Session.PlayerGameStates[userID].CPM,
+                Accuracy = Session.PlayerGameStates[userID].Accuracy,
+            Date = DateTime.UtcNow,
+            VideoId = config.URL,
+            UserId = userID,
+            MissTypedChars = missTypedChars.Select(i => new MissTypedChar(i.second, i.missChar)).ToList(),
 
-        // };
-        // _result.Add(result);
+        };
+        _result.Add(result);
     }
 
     private async Task SetDefault()
@@ -130,19 +134,20 @@
         await InvokeAsync(StateHasChanged);
     }
 
-    private async Task ConfigureGame(GameConfig gameConfig)
+    private async Task ConfigureGame()
     {
         IsVideoModalOpen = false;
         Session = _matchmaking.GetSession(userID);
-        config = gameConfig;
+        config = Session.Config;
         await InitGame();
         await SetDefault();
     }
 
     private async Task InitGame()
     {
-       await JSRuntime.InvokeVoidAsync("updateVideoSource", config.URL, config.Time);
-       missTypedChars = new List<(int, char)>();
+        await JSRuntime.InvokeVoidAsync("updateVideoSource", config.URL, config.Time);
+        Session.Started = true;
+        missTypedChars = new List<(int, char)>();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -251,8 +256,12 @@
         // canPlay = false;
         await JSRuntime.InvokeVoidAsync("endGame");
         AfterSubmit();
-        Session.OnMatchFinished += () => IsResultModalOpen = true;
-        await InvokeAsync(StateHasChanged);
+        Session.OnMatchFinished += async () =>
+        {
+            IsResultModalOpen = true;
+            await InvokeAsync(StateHasChanged);
+        };
+        Session.PlayerFinished(userID);
     }
 
     [JSInvokable]
@@ -279,6 +288,7 @@
             timer.Dispose();
             timer = null;
         }
+        _matchmaking.UnregisterFromSession(userID);
     }
 
     [JSInvokable]

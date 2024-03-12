@@ -27,10 +27,7 @@
 
     private string ModalClasses => IsOpen ? "show" : "";
 
-    protected override void OnParametersSet()
-    {
-        StateHasChanged();
-    }
+    protected override void OnParametersSet() => StateHasChanged();
 
     private async Task CloseModal()
     {

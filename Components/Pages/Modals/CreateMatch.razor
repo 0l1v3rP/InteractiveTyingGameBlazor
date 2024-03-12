@@ -1,0 +1,184 @@
+﻿@using InteractiveTyingGameBlazor.Data.Services;
+@using InteractiveTyingGameBlazor.DbModels;
+@using InteractiveTyingGameBlazor.Models;
+@using Microsoft.AspNetCore.SignalR.Client;
+@using YoutubeExplode;
+@using YoutubeExplode.Videos.ClosedCaptions;
+@using InteractiveTyingGameBlazor.Utils;
+@using InteractiveTyingGameBlazor.MatchMaking;
+
+@inject MatchmakingService _matchMaking;
+@inject RegisteredVideosService _videos;
+
+<div class="row mb-3 mx-3">
+    <h6>Choose Category:</h6>
+    <select class="form-select" @onchange="UpdateSelectedCategory">
+        <option value=""></option>
+        @foreach (var category in categoriesList)
+        {
+            <option value="@category">@category</option>
+        }
+    </select>
+</div>
+<div class="row  mb-3 mx-3">
+    <h6>Choose Video:</h6>
+    <select class="form-select" @onchange="UpdateSelectedVideo">
+        <option value=""></option>
+        @foreach (var video in filteredVideosList)
+        {
+            <option value="@video.Id">@video.Title</option>
+        }
+    </select>
+</div>
+
+<div class="row mb-3 mx-3">
+    <h6>Choose Time:</h6>
+    <select class="form-select" @onchange="UpdateSelectedTime">
+        @foreach (var timeOption in TimeOptions)
+        {
+            <option value="@timeOption.Item2">
+                @timeOption.Item1
+            </option>
+        }
+    </select>
+</div>
+
+<div class="row mb-3 mx-3 align-items-center">
+    <div class="col-8">
+        <span class="form-check">
+            <input class="form-check-input" type="checkbox" id="enableInputCheck" @onchange="ToggleNumberInput">
+            <label class="form-check-label" for="enableInputCheck">
+                Create Match
+            </label>
+        </span>
+    </div>
+    <div class="col-4">
+        <input type="number" class="form-control" min="2" max="4" @bind="players" disabled="@(!createMatch)" />
+    </div>
+</div>
+
+@if (showAlert)
+{
+<div class="alert alert-danger mb-3 mx-3">
+        Select Category & Video.
+    </div>
+}
+
+<div class="d-flex justify-content-center">
+    <button class="btn btn-primary mx-3" @onclick="OnSubmitSelection">PLAY</button>
+</div>
+
+@code {
+    [Parameter]
+    public EventCallback<GameConfig> ConfigureOptions { get; set; }
+
+    [Parameter]
+    public string? UserId { get; set; }
+
+    [Parameter]
+    public EventCallback OpenWaitingRoom { get; set; }
+
+    [Parameter]
+    public EventCallback CloseWaitingRoom { get; set; }
+
+    private int players = 2;
+    private bool createMatch = false;
+
+    private void ToggleNumberInput(ChangeEventArgs e)
+    {
+        createMatch = (bool)e.Value;
+    }
+
+    private Random random = new Random();
+    private List<RegisteredVideo> videosList = new List<RegisteredVideo>();
+    private bool showAlert;
+    private List<(string, int?)> TimeOptions = new List<(string, int?)>
+    {
+        ("1 minute", 1),
+        ("2 minutes", 2),
+        ("5 minutes", 5),
+        ("Random", null),
+    };
+    private RegisteredVideo? selectedVideo;
+    private string selectedTime;
+    private List<RegisteredVideo> filteredVideosList = new();
+    private string selectedCategory;
+    private string[] categoriesList = Enum.GetNames(typeof(CategoryType));
+
+    protected override async Task OnInitializedAsync()
+    {
+        selectedTime = TimeOptions.First().Item1;
+        videosList = (await _videos.GetAvailableVideos()).ToList();
+    }
+
+    private async Task UpdateSelectedVideo(ChangeEventArgs e)
+    {
+        var selectedVideoId = e.Value?.ToString();
+        selectedVideo = filteredVideosList.FirstOrDefault(v => v.Id.ToString().Equals(selectedVideoId));
+        await ErrorHandle(false);
+    }
+
+    private async Task ErrorHandle(bool showErr)
+    {
+        if (!showErr && !string.IsNullOrEmpty(selectedCategory) && selectedVideo is not null)
+        {
+            showAlert = false;
+            await InvokeAsync(StateHasChanged);
+        }
+        else if (showErr && (string.IsNullOrEmpty(selectedCategory) || selectedVideo is null))
+        {
+            showAlert = true;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task UpdateSelectedCategory(ChangeEventArgs e)
+    {
+        selectedCategory = e.Value.ToString();
+        filteredVideosList = videosList.Where(v => v.Category.ToString() == selectedCategory).ToList();
+        await ErrorHandle(false);
+    }
+
+    private void UpdateSelectedTime(ChangeEventArgs e)
+        => selectedTime = e.Value?.ToString();
+
+    public async Task OnSubmitSelection()
+    {
+        await ErrorHandle(true);
+        if (!showAlert)
+        {
+            var option = TimeOptions.FirstOrDefault(i => i.Item1?.ToString() == selectedTime).Item2;
+            int time = option is null ? random.Next(1, 5) : option.Value;
+            var captions = await YTMetadataExtract.GetSubtitles(selectedVideo.URL, selectedVideo.Language);
+            int playersNum =  1;
+            Func<Task>? joinCallback = null;
+            if(createMatch)
+            {
+                playersNum = players;
+                joinCallback = JoinCallback;
+            }
+            Guid? sessionId = _matchMaking.TryCreateSession(UserId, playersNum, new GameConfig(selectedVideo.URL, time, captions, selectedVideo.Title));
+            if (sessionId is not null)
+            {
+                _matchMaking.JoinMatch(sessionId.Value, UserId, joinCallback);
+                if (joinCallback is null) await OnJoin();
+                else await OpenWaitingRoom.InvokeAsync();
+            }
+        }
+    }
+
+    private async Task JoinCallback()
+    {
+        await InvokeAsync(async () =>
+        {
+            await OnJoin();
+            await CloseWaitingRoom.InvokeAsync();
+        });
+    }
+
+    private async Task OnJoin() 
+        => await InvokeAsync(async () => await ConfigureOptions.InvokeAsync());
+
+    protected override void OnParametersSet()
+        => StateHasChanged();
+}

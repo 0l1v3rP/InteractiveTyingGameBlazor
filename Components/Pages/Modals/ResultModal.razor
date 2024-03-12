@@ -7,7 +7,7 @@
             <p><strong>Placement:</strong> @Placement</p>
         }
         <div class="d-flex justify-content-between">
-            <button class="btn btn-primary mt-3" @onclick="@Restart">Restart</button>
+            @* <button class="btn btn-primary mt-3" @onclick="@Restart">Restart</button> *@
             <button class="btn btn-primary mt-3" @onclick="@NewGame">New Game</button>
         </div>
     </div>
@@ -26,15 +26,12 @@
     [Parameter]
     public int Placement { get; set; }
 
+    // [Parameter]
+    // public EventCallback Restart { get; set; }
+
     [Parameter]
-
-    public EventCallback Restart { get; set; }
-
-    [Parameter]
-
     public EventCallback NewGame { get; set; }
 
     [Parameter]
-
     public EventCallback OnClose { get; set; }
 }

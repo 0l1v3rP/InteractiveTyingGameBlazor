@@ -1,0 +1,64 @@
+﻿@using InteractiveTyingGameBlazor.Data.Services;
+@using InteractiveTyingGameBlazor.DbModels;
+@using InteractiveTyingGameBlazor.Models;
+@using Microsoft.AspNetCore.SignalR.Client;
+@using YoutubeExplode;
+@using YoutubeExplode.Videos.ClosedCaptions;
+@using InteractiveTyingGameBlazor.Utils;
+@using InteractiveTyingGameBlazor.MatchMaking;
+@inject MatchmakingService _matchMaking
+
+
+<GenericModal IsOpen="@IsOpen" Title="Configure Game">
+	<div class="btn-group d-flex" role="group" aria-label="Basic example">
+		<button type="button" class="btn btn-primary" @onclick="() => option = 0" >Create</button>
+		<button type="button" class="btn btn-primary" @onclick="() => option = 1">Join Match</button>
+	</div>
+	<br/>
+	@if (option == 0)
+	{
+		<CreateMatch ConfigureOptions
+		="@ConfigureOptions" UserId
+		="@UserId" OpenWaitingRoom
+		="@OpenWaitingRoom" CloseWaitingRoom
+		="@CloseWaitingRoom"></CreateMatch>
+	}
+
+	else if (option == 1) {
+		<JoinMatch ConfigureOptions="@ConfigureOptions" UserId="@UserId" OpenWaitingRoom="@OpenWaitingRoom" CloseWaitingRoom="@CloseWaitingRoom" />
+	}
+</GenericModal>
+
+<WaitingRoom IsOpen="@OpenWaitingRoomDialog" OnClose="@OnCloseWaitingRoom" />
+@code {
+	[Parameter]
+	public bool IsOpen { get; set; }
+
+	public bool OpenWaitingRoomDialog { get; set; }
+
+	[Parameter]
+	public EventCallback<GameConfig> ConfigureOptions { get; set; }
+
+	[Parameter]
+	public string? UserId { get; set; }
+
+	private int option = 0;
+
+	private async Task OpenWaitingRoom() {
+		IsOpen = false;
+		OpenWaitingRoomDialog = true;
+		await InvokeAsync(StateHasChanged);
+	}
+
+	private async Task CloseWaitingRoom()
+	{
+		OpenWaitingRoomDialog = false;
+		await InvokeAsync(StateHasChanged);
+	}
+
+	private void OnCloseWaitingRoom()
+	{
+		OpenWaitingRoomDialog = false;
+		_matchMaking.UnregisterFromSession(UserId);
+	}
+}

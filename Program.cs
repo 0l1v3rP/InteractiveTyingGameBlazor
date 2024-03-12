@@ -22,7 +22,6 @@ builder.Services.AddScoped<TypingResultService>();
 builder.Services.AddScoped<RegisteredVideosService>();
 
 builder.Services.AddSingleton<MatchmakingService>();
-builder.Services.AddSingleton<MatchmakingMediator>();
 
 builder.Services.AddAuthentication(options =>
     {
