@@ -1,21 +1,16 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using InteractiveTyingGameBlazor.Data;
+using InteractiveTyingGameBlazor.DbModels;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
 
 namespace InteractiveTyingGameBlazor.Models
 {
-    using InteractiveTyingGameBlazor.Data;
-    using InteractiveTyingGameBlazor.DbModels;
-    using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-    using System;
-    using System.ComponentModel.DataAnnotations;
-    using System.ComponentModel.DataAnnotations.Schema;
-    using System.Diagnostics.CodeAnalysis;
-
     public class TypingResult : BaseEntity
     {
         [ForeignKey("ApplicationUser")]
         [AllowNull]
-        public string UserId { get; set; }
+        public string? UserId { get; set; } = null;
 
         [AllowNull]
         public string? SessionId { get; set; } = null;

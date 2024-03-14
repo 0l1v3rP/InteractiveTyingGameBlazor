@@ -9,6 +9,9 @@ namespace InteractiveTyingGameBlazor.MatchMaking
         public List<GameSession> Sessions { get; } = [];
         public bool JoinMatch(Guid matchId, string playerId, Func<Task>? onStart)
         {
+            if (GetSession(playerId) is not null)
+                return false;
+
             var match = Sessions.First(i => i.Id == matchId);
             bool joined = match.AddPlayer(playerId);
             if (joined)

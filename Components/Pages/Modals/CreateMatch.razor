@@ -43,7 +43,7 @@
     </select>
 </div>
 
-<div class="row mb-3 mx-3 align-items-center">
+<div class="row mb-3 mx-3 align-items-center">c
     <div class="col-8">
         <span class="form-check">
             <input class="form-check-input" type="checkbox" id="enableInputCheck" @onchange="ToggleNumberInput">
@@ -145,25 +145,25 @@
     public async Task OnSubmitSelection()
     {
         await ErrorHandle(true);
-        if (!showAlert)
+        if (showAlert)
+            return;
+
+        var option = TimeOptions.FirstOrDefault(i => i.Item1?.ToString() == selectedTime).Item2;
+        int time = option is null ? random.Next(1, 5) : option.Value;
+        var captions = await YTMetadataExtract.GetSubtitles(selectedVideo.URL, selectedVideo.Language);
+        int playersNum =  1;
+        Func<Task>? joinCallback = null;
+        if(createMatch)
         {
-            var option = TimeOptions.FirstOrDefault(i => i.Item1?.ToString() == selectedTime).Item2;
-            int time = option is null ? random.Next(1, 5) : option.Value;
-            var captions = await YTMetadataExtract.GetSubtitles(selectedVideo.URL, selectedVideo.Language);
-            int playersNum =  1;
-            Func<Task>? joinCallback = null;
-            if(createMatch)
-            {
-                playersNum = players;
-                joinCallback = JoinCallback;
-            }
-            Guid? sessionId = _matchMaking.TryCreateSession(UserId, playersNum, new GameConfig(selectedVideo.URL, time, captions, selectedVideo.Title));
-            if (sessionId is not null)
-            {
-                _matchMaking.JoinMatch(sessionId.Value, UserId, joinCallback);
-                if (joinCallback is null) await OnJoin();
-                else await OpenWaitingRoom.InvokeAsync();
-            }
+            playersNum = players;
+            joinCallback = JoinCallback;
+        }
+        Guid? sessionId = _matchMaking.TryCreateSession(UserId, playersNum, new GameConfig(selectedVideo.URL, time, captions, selectedVideo.Title));
+        if (sessionId is not null)
+        {
+            _matchMaking.JoinMatch(sessionId.Value, UserId, joinCallback);
+            if (joinCallback is null) await OnJoin();
+            else await OpenWaitingRoom.InvokeAsync();
         }
     }
 

@@ -4,13 +4,48 @@
 @using InteractiveTyingGameBlazor.Components.Pages.Charts;
 @using Data.Services;
 @using Microsoft.AspNetCore.Authorization
-@inherits Common;
-@inject TypingResultService TypingResultService;
-
+@using InteractiveTyingGameBlazor.Components.Pages.Modals;
+@inherits Common
 @attribute [Authorize]
 
-<AverageUserCPMChart/>
-<UsersCPMStatisticChart/>
+<div style="text-align: right;">
+    <button type="button" class="btn btn-primary" onclick="@ShowChartOptions">Change</button>
+</div>
 
-@code {	
+@RenderChart()
+
+<ChartModal IsOpen=@Open Keys="@Charts.Keys" OnKeyChanged="@OnKeyChanged" 
+   />
+
+@code {
+    private int choice { get; set; }
+    public bool Open { get; set; }
+    public string Key { get; set; } = Charts.Keys.First();
+
+    public static Dictionary<string, Type> Charts = new Dictionary<string, Type> {
+        {"Average user cpm chart", typeof(AverageUserCPMChart)},
+        {"All users cpm chart", typeof(UsersCPMStatisticChart)},
+    };
+
+    private RenderFragment RenderChart() => builder =>
+    {
+        if (Charts.TryGetValue(Key, out var componentType))
+        {
+            builder.OpenComponent(0, componentType);
+            builder.CloseComponent();
+        }
+    };
+
+    private void ShowChartOptions()
+    {
+        Open = true;
+        StateHasChanged();
+    }
+
+    private async Task OnKeyChanged(string key)
+    {
+        Key = key;
+        await InvokeAsync(StateHasChanged);
+        Open = false;
+    }
 }

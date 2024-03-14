@@ -1,0 +1,36 @@
+﻿<GenericModal IsOpen="@IsOpen" Title="Choose Chart">
+	<div class="row mb-3 align-items-center">
+        <div class="col-9">
+            <select class="form-select" @onchange="UpdateKey">
+                @foreach (var key in Keys)
+                {
+                    <option value="@key">
+                            @key
+                    </option>
+                }
+            </select>
+        </div>
+        <div class="col-3">
+            <button type="button" class="btn btn-primary" @onclick="@Submit">Submit</button>
+        </div>
+    </div>
+</GenericModal>
+
+@code {
+    [Parameter]
+    public bool IsOpen { get; set; }
+
+    [Parameter]
+    public IEnumerable<string> Keys { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnKeyChanged { get; set; }
+
+    private string currentKey;
+
+    public void Submit()
+        => OnKeyChanged.InvokeAsync(currentKey);
+    
+    private void UpdateKey(ChangeEventArgs e)
+        => currentKey = e.Value.ToString();
+}

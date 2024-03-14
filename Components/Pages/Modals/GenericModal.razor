@@ -23,7 +23,7 @@
     public string Title { get; set; }
 
     [Parameter]
-    public EventCallback OnClose { get; set; }
+    public EventCallback<string> OnClose { get; set; }
 
     private string ModalClasses => IsOpen ? "show" : "";
 

@@ -11,8 +11,8 @@ namespace InteractiveTyingGameBlazor.Data.Services
 		
         public void Add(T entity)
 		{
-			//_dbContext.Set<T>().Add(entity);
-			//_dbContext.SaveChanges();
+			_dbContext.Set<T>().Add(entity);
+			_dbContext.SaveChanges();
 		}
 
 		public void Update(T entity)
