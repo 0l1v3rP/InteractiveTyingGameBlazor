@@ -34,7 +34,6 @@ namespace InteractiveTyingGameBlazor.Models
             }
         }
 
-
         public void SetPlayerReady(string playerId, bool ready)
         {
             if (PlayerGameStates.TryGetValue(playerId, out Game? value))

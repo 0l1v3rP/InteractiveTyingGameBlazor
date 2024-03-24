@@ -1,8 +1,6 @@
 ﻿using InteractiveTyingGameBlazor.Extensions;
 using InteractiveTyingGameBlazor.Models;
 using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.Identity.Client;
-using System.Collections;
 namespace InteractiveTyingGameBlazor.Data.Services
 {
     public class TypingResultService(ApplicationDbContext dbContext, AuthenticationStateProvider auth) : SharedService<TypingResult>(dbContext, auth)

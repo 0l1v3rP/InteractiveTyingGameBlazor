@@ -5,8 +5,10 @@ using InteractiveTyingGameBlazor.Data.Services;
 using InteractiveTyingGameBlazor.MatchMaking;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Syncfusion.Blazor;
+using Syncfusion.Blazor.Inputs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,7 +32,8 @@ builder.Services.AddAuthentication(options =>
     })
     .AddIdentityCookies();
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+//var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+var connectionString = builder.Configuration.GetConnectionString("AZURE_SQL_CONNECTIONSTRING") ?? throw new InvalidOperationException("Connection string 'AZURE_SQL_CONNECTIONSTRING' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
@@ -82,24 +85,6 @@ using (var scope = app.Services.CreateScope())
             IdentityRole roleRole = new(role);
             await roleManager.CreateAsync(roleRole);
         }
-    }
-}
-
-using (var scope = app.Services.CreateScope())
-{
-    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-    string email = "admin@admin.com";
-    string password = "Heslo1_";
-    if (await userManager.FindByNameAsync(email) == null)
-    {
-        var user = new ApplicationUser
-        {
-            UserName = "Administrator",
-            Email = email
-        };
-        await userManager.CreateAsync(user, password);
-
-        await userManager.AddToRoleAsync(user, "Admin");
     }
 }
 

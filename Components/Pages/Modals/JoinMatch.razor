@@ -46,8 +46,8 @@ else
     {
         await InvokeAsync(async () =>
         {
-            await OpenWaitingRoom.InvokeAsync();
-            _matchMaking.JoinMatch(session.Id, UserId, OnJoin);
+            if(_matchMaking.JoinMatch(session.Id, UserId, OnJoin))
+                await OpenWaitingRoom.InvokeAsync();
         });
     }
 

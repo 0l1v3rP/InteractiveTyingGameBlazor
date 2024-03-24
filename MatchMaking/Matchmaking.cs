@@ -15,7 +15,7 @@ namespace InteractiveTyingGameBlazor.MatchMaking
             var match = Sessions.First(i => i.Id == matchId);
             bool joined = match.AddPlayer(playerId);
             if (joined)
-            {
+             {
                 match.OnMatchStart += onStart;
                 match.TryToStartMatch();
             }

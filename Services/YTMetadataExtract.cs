@@ -31,7 +31,7 @@ namespace InteractiveTyingGameBlazor.Utils
             {
                 return await _client.Videos.ClosedCaptions.GetAsync(trackInfo);
             }
-
+ 
             return null;
         }
 

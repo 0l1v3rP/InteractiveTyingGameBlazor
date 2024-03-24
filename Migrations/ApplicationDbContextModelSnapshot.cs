@@ -4,7 +4,6 @@ using InteractiveTyingGameBlazor.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -12,15 +11,13 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace InteractiveTyingGameBlazor.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240301112557_Init")]
-    partial class Init
+    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.2")
+                .HasAnnotation("ProductVersion", "8.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -90,9 +87,45 @@ namespace InteractiveTyingGameBlazor.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("InteractiveTyingGameBlazor.DbModels.RegisteredVideo", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsGlobal")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Language")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("URL")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("RegisteredVideos");
+                });
+
             modelBuilder.Entity("InteractiveTyingGameBlazor.Models.TypingResult", b =>
                 {
-                    b.Property<Guid>("TypingResultId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
@@ -105,15 +138,17 @@ namespace InteractiveTyingGameBlazor.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("SessionId")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("UserId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("VideoId")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("TypingResultId");
+                    b.HasKey("Id");
 
                     b.HasIndex("UserId");
 
@@ -253,13 +288,22 @@ namespace InteractiveTyingGameBlazor.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("InteractiveTyingGameBlazor.Models.TypingResult", b =>
+            modelBuilder.Entity("InteractiveTyingGameBlazor.DbModels.RegisteredVideo", b =>
                 {
                     b.HasOne("InteractiveTyingGameBlazor.Data.ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("InteractiveTyingGameBlazor.Models.TypingResult", b =>
+                {
+                    b.HasOne("InteractiveTyingGameBlazor.Data.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
 
                     b.OwnsMany("InteractiveTyingGameBlazor.Models.MissTypedChar", "MissTypedChars", b1 =>
                         {
@@ -268,6 +312,9 @@ namespace InteractiveTyingGameBlazor.Migrations
 
                             b1.Property<Guid>("MissTypedCharId")
                                 .ValueGeneratedOnAdd()
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<Guid>("Id")
                                 .HasColumnType("uniqueidentifier");
 
                             b1.Property<string>("MissChar")
