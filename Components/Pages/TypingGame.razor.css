@@ -1,9 +1,9 @@
-﻿
-.game-container {
+﻿.game-container {
     position: relative;
     max-width: 70%;
     margin: 0 auto;
 }
+
 .stats-container {
     background-color: #f2f2f2;
     padding: 10px;
@@ -36,6 +36,7 @@
     height: 50px;
     font-size: 30px;
     width: 860px;
+    text-align: center;
 }
 
 #video-overlay {

@@ -1,3 +1,4 @@
+using InteractiveTyingGameBlazor;
 using InteractiveTyingGameBlazor.Components;
 using InteractiveTyingGameBlazor.Components.Account;
 using InteractiveTyingGameBlazor.Data;
@@ -7,11 +8,13 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Syncfusion.Blazor;
 using Syncfusion.Blazor.Inputs;
+using System.Diagnostics;
+
 
 var builder = WebApplication.CreateBuilder(args);
-
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
@@ -22,7 +25,6 @@ builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
 builder.Services.AddScoped<TypingResultService>();
 builder.Services.AddScoped<RegisteredVideosService>();
-
 builder.Services.AddSingleton<MatchmakingService>();
 
 builder.Services.AddAuthentication(options =>
@@ -47,45 +49,54 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 
 builder.Services.AddSyncfusionBlazor();
+builder.Services.AddApplicationInsightsTelemetry(builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]);
 
-var app = builder.Build();
 //syncfusion licensing
 Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(builder.Configuration["SYNCFUSION_LICENSE_KEY"]);
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+var app = builder.Build();
+var logger = ((IApplicationBuilder)app).ApplicationServices.GetService<ILogger<Program>>();
+try
 {
-    app.UseMigrationsEndPoint();
-}
-else
-{
-    app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
-}
-
-app.UseHttpsRedirection();
-
-app.UseStaticFiles();
-app.UseAntiforgery();
-
-app.MapRazorComponents<App>()
-    .AddInteractiveServerRenderMode();
-
-// Add additional endpoints required by the Identity /Account Razor components.
-app.MapAdditionalIdentityEndpoints();
-
-using (var scope = app.Services.CreateScope())
-{
-    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-    var roles = new[] { "Admin","User" };
-    foreach (var role in roles)
+    // Configure the HTTP request pipeline.
+    if (app.Environment.IsDevelopment())
     {
-        if (!await roleManager.RoleExistsAsync(role))
+        app.UseMigrationsEndPoint();
+    }
+    else
+    {
+        app.UseExceptionHandler("/Error", createScopeForErrors: true);
+        // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+        app.UseHsts();
+    }
+
+    app.UseHttpsRedirection();
+
+    app.UseStaticFiles();
+    app.UseAntiforgery();
+
+    app.MapRazorComponents<App>()
+        .AddInteractiveServerRenderMode();
+
+    // Add additional endpoints required by the Identity /Account Razor components.
+    app.MapAdditionalIdentityEndpoints();
+
+    using (var scope = app.Services.CreateScope())
+    {
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+        var roles = new[] { "Admin","User" };
+        foreach (var role in roles)
         {
-            IdentityRole roleRole = new(role);
-            await roleManager.CreateAsync(roleRole);
+            if (!await roleManager.RoleExistsAsync(role))
+            {
+                IdentityRole roleRole = new(role);
+                await roleManager.CreateAsync(roleRole);
+            }
         }
     }
+    app.Run();
 }
-
-app.Run();
+catch (Exception ex)
+{
+    logger.LogError(ex, "An unhandled exception has ocured");
+    throw;
+}
