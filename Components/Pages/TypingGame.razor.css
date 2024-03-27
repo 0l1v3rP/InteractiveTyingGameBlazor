@@ -1,6 +1,6 @@
 ﻿.game-container {
     position: relative;
-    max-width: 70%;
+    width: 860px;
     margin: 0 auto;
 }
 
@@ -30,13 +30,29 @@
     color: #dc3545;
 }
 
+.leftText {
+    border-style: solid none solid solid;
+    border-width: 2px;
+    border-color: black;
+    pointer-events: none;
+    background-color: white;
+    text-align: right;
+    overflow: hidden;
+    white-space: nowrap;
+}
 
-.textInput {
+
+.rightTextInput {
+    border-style: solid solid solid none;
+    border-color: black;
+}
+
+.typingInput {
     margin-top: 20px;
     height: 50px;
     font-size: 30px;
-    width: 860px;
-    text-align: center;
+    flex: 1;
+    outline: none;
 }
 
 #video-overlay {

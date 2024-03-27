@@ -6,7 +6,11 @@
         bigPlayButton: false, 
         fluid: false,
     });
-    const input = document.getElementById('typingInput');
+    const rightInput = document.getElementById('rightTypingInput');
+
+    document.getElementById('textInputWrapper').addEventListener('click', () => {
+        setCursorToStart();
+    })
 
     player.on('click',async (event) => {
         if (!player.currentSrc() || player.currentSrc() === "") {
@@ -16,7 +20,7 @@
         }
     });
 
-    input.addEventListener('keydown', (event) => {
+    rightInput.addEventListener('keydown', (event) => {
         if (event.key === 'Backspace' || ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
             setCursorToStart();
             event.preventDefault();
@@ -27,12 +31,12 @@
         await dotNetRef.invokeMethodAsync('DisposeComponent');
     });
 
-    input.addEventListener('click', (event) => {
+    rightInput.addEventListener('click', (event) => {
         setCursorToStart();
         event.preventDefault();
     });
     
-    input.addEventListener('keypress', (event) => { event.preventDefault() })
+    rightInput.addEventListener('keypress', (event) => { event.preventDefault() })
 
     let gameStatus = {
         ended: false,
@@ -102,12 +106,15 @@
     window.endGame = () => {
         gameStatus.ended = true;
         player.reset();
-        input.removeEventListener('keypress', keyPressFun.fun);
-        input.value = '';
+        rightInput.removeEventListener('keypress', keyPressFun.fun);
+        rightInput.value = '';
+        document.getElementById('leftTypingDisplay').innerHTML = '';
     }
 }
 function setCursorToStart() {
-    document.getElementById('typingInput').setSelectionRange(0, 0);
+    let input = document.getElementById('rightTypingInput');
+    input.setSelectionRange(0, 0);
+    input.focus();
 }
 
 async function handleTimeUpdate(dotNetRef, player, gameStatus) {
@@ -119,11 +126,14 @@ async function handleTimeUpdate(dotNetRef, player, gameStatus) {
 
         const checkInputValue = () => {
             if (!gameStatus.ended) {
-                if (document.getElementById('typingInput').value !== '') {
+                if (document.getElementById('rightTypingInput').value !== '') {
                     setTimeout(checkInputValue, 100);
                 } else {
-                    setSubtitle(subtitle)
                     player.play();
+                    setSubtitle(subtitle)
+                    if (document.getElementById('leftTypingDisplay').lastElementChild) {
+                        document.getElementById('leftTypingDisplay').lastElementChild.style.marginRight = '8px';
+                    }
                 }
             }
         };
@@ -132,7 +142,8 @@ async function handleTimeUpdate(dotNetRef, player, gameStatus) {
 }
 
 function configueTextInput(dotNetRef, gameStatus, keyPressFun) {
-    const input = document.getElementById('typingInput');
+    const rightInput = document.getElementById('rightTypingInput');
+    const leftInput = document.getElementById('leftTypingDisplay');
     function calculateCPM() {
         const elapsedTime = (Date.now() - gameStatus.startTime) / 1000;
         return parseInt(gameStatus.correctCharacters / ((elapsedTime > 60 ? elapsedTime : 60) / 60));
@@ -141,17 +152,43 @@ function configueTextInput(dotNetRef, gameStatus, keyPressFun) {
     function calculateAccuracy() {
         return parseFloat(((100 / gameStatus.allCharacters) * gameStatus.correctCharacters).toFixed(2));
     }
- 
+
+    function setCursor(isCorrect) {
+        const color = isCorrect ? 'green' : 'red';
+        const char = rightInput.value.charAt(0);
+        if (char === ' ') {
+            leftInput.lastElementChild.style.marginRight = '8px';
+        } else {
+
+            leftInput.innerHTML += `<span style="color:${color}">${char}</span>`;
+        }
+        
+        rightInput.value = rightInput.value.substring(1);
+        setCursorToStart();
+        handleOverflow();
+    }
+
+    function handleOverflow() {
+        let totalWidth = 0;
+        for (let child of leftInput.childNodes) {
+            totalWidth += child.offsetWidth;
+        }
+
+        while (leftInput.scrollWidth > leftInput.clientWidth && leftInput.childNodes.length > 0) {
+            leftInput.removeChild(leftInput.firstChild);
+        }
+    }
+
     keyPressFun.fun = async (event) => {
         if (gameStatus.started) {
-            if (event.key === input.value.charAt(0)) {
-                input.value = input.value.substring(1);
-                setCursorToStart();
+            if (event.key === rightInput.value.charAt(0)) {
+                setCursor(true)
                 ++gameStatus.correctCharacters;
                 await dotNetRef.invokeMethodAsync('SetCPM', calculateCPM())
             }
             else {
                 await dotNetRef.invokeMethodAsync('MissedChar', event.key);
+                setCursor(false)
             }
             ++gameStatus.allCharacters;
             await dotNetRef.invokeMethodAsync('SetAccuracy', (calculateAccuracy()));
@@ -160,18 +197,17 @@ function configueTextInput(dotNetRef, gameStatus, keyPressFun) {
             event.preventDefault();
         }
     }
-    input.addEventListener('keypress', keyPressFun.fun);
+    rightInput.addEventListener('keypress', keyPressFun.fun);
 }
 function setSubtitle(subtitle) {
     const typedText = normalizeSubtitle(subtitle);
-    document.getElementById('typingInput').value = typedText;
+    document.getElementById('rightTypingInput').value = typedText;
 }
+
 function normalizeSubtitle(subtitle) {
     return subtitle.text
         .replace(/…/g, '...')
         .replace(/‒/g, '-')
+        .replace(/„/g, '"')
+        .replace(/“/g, '"')
 }
-
-window.addEventListener('beforeunload', async () => {
-    await DotNet.invokeMethodAsync('InteractiveTyingGameBlazor', 'Dispose');
-});

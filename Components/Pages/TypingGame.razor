@@ -58,8 +58,12 @@
             Time: <span id="time" class="time-color">@time</span>
         </div>
     </div>
+    <div id="textInputWrapper" style="display:flex">
+        <div id="leftTypingDisplay" class="leftText typingInput">
 
-    <input class="textInput" type="text" id="typingInput" autocomplete="off">
+        </div>
+        <input class="rightTextInput typingInput" type="text" id="rightTypingInput" autocomplete="off">
+    </div>
 </div>
 <GameModal></GameModal>
 <SfSpinner @bind-Visible="@spinnerVisiblity" />
@@ -114,12 +118,11 @@
         TypingResult result = new()
         {
             CPM = Session.PlayerGameStates[userID].CPM,
-                Accuracy = Session.PlayerGameStates[userID].Accuracy,
+            Accuracy = Session.PlayerGameStates[userID].Accuracy,
             Date = DateTime.UtcNow,
             VideoId = config.URL,
-            UserId = userID,
+            UserId = userID.StartsWith("Anonymous") ? null : userID,
             MissTypedChars = missTypedChars.Select(i => new MissTypedChar(i.second, i.missChar)).ToList(),
-
         };
         _result.Add(result);
     }
