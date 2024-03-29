@@ -1,8 +1,5 @@
 ﻿using YoutubeExplode;
 using YoutubeExplode.Videos.ClosedCaptions;
-using System.Linq;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using YoutubeExplode.Videos;
 
 namespace InteractiveTyingGameBlazor.Utils

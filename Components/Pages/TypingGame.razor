@@ -11,6 +11,7 @@
 @using YoutubeExplode.Videos.ClosedCaptions;
 @using Syncfusion.Blazor.Spinner;
 @using Microsoft.AspNetCore.SignalR.Client;
+@using System.Text.Json;
 
 @inject TypingResultService _result;
 @inject IJSRuntime JSRuntime
@@ -80,7 +81,7 @@
     private int seconds = 0;
     private string time = "00:00";
     private int? currentIndex = null;
-    private IList<(int second, char missChar)>? missTypedChars = null;
+    private IList<TypedChar>? Chars = null;
     private GameConfig config;
     public bool IsVideoModalOpen { get; set; } = false;
     public bool IsResultModalOpen { get; set; } = false;
@@ -116,14 +117,14 @@
     private void AfterSubmit()
     {
         TypingResult result = new()
-        {
+            {
             CPM = Session.PlayerGameStates[userID].CPM,
             Accuracy = Session.PlayerGameStates[userID].Accuracy,
             Date = DateTime.UtcNow,
             VideoId = config.URL,
             UserId = userID.StartsWith("Anonymous") ? null : userID,
-            MissTypedChars = missTypedChars.Select(i => new MissTypedChar(i.second, i.missChar)).ToList(),
-        };
+            Chars = JsonSerializer.Serialize(Chars)
+    };
         _result.Add(result);
     }
 
@@ -148,7 +149,7 @@
     {
         await JSRuntime.InvokeVoidAsync("updateVideoSource", config.URL, config.Time);
         Session.Started = true;
-        missTypedChars = new List<(int, char)>();
+        Chars = new List<TypedChar>();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -277,8 +278,8 @@
     }
 
     [JSInvokable]
-    public void MissedChar(char character) 
-        => missTypedChars.Add((seconds, character));
+    public void MissedChar(char character, bool isCorrect) 
+        => Chars.Add(new(seconds, character, isCorrect));
 
     [JSInvokable]
     public void DisposeComponent()

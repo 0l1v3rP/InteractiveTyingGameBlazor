@@ -1,8 +1,0 @@
-{
-  "dependencies": {
-    "webvtt-parser": "^2.2.0"
-  },
-  "devDependencies": {
-    "eslint": "^8.56.0"
-  }
-}

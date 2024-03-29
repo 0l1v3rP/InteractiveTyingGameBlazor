@@ -153,7 +153,7 @@ function configueTextInput(dotNetRef, gameStatus, keyPressFun) {
         return parseFloat(((100 / gameStatus.allCharacters) * gameStatus.correctCharacters).toFixed(2));
     }
 
-    function setCursor(isCorrect) {
+    function setResultChar(isCorrect) {
         const color = isCorrect ? 'green' : 'red';
         const char = rightInput.value.charAt(0);
         if (char === ' ') {
@@ -181,15 +181,13 @@ function configueTextInput(dotNetRef, gameStatus, keyPressFun) {
 
     keyPressFun.fun = async (event) => {
         if (gameStatus.started) {
+            let correctChar = event.key === rightInput.value.charAt(0);
             if (event.key === rightInput.value.charAt(0)) {
-                setCursor(true)
                 ++gameStatus.correctCharacters;
                 await dotNetRef.invokeMethodAsync('SetCPM', calculateCPM())
             }
-            else {
-                await dotNetRef.invokeMethodAsync('MissedChar', event.key);
-                setCursor(false)
-            }
+            setResultChar(correctChar)
+            await dotNetRef.invokeMethodAsync('CharPressed', event.key, correctChar);
             ++gameStatus.allCharacters;
             await dotNetRef.invokeMethodAsync('SetAccuracy', (calculateAccuracy()));
         }

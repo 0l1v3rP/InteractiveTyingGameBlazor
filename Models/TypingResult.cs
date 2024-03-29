@@ -29,7 +29,6 @@ namespace InteractiveTyingGameBlazor.Models
 
         public ApplicationUser? User { get; set; }
 
-        [NotMapped]
-        public List<MissTypedChar> MissTypedChars { get; set; }
+        public string Chars { get; set; }
     }
 }
