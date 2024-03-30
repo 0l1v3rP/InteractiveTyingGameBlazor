@@ -1,5 +1,5 @@
 ﻿<div class="modal fade @ModalClasses" tabindex="-1" role="dialog" aria-labelledby="videoModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered @GetModalSizeClass()">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">@Title</h5>
@@ -24,6 +24,11 @@
 
     [Parameter]
     public EventCallback<string> OnClose { get; set; }
+
+    [Parameter]
+    public bool Large { get; set; } = false;
+
+    private string GetModalSizeClass() => Large ? "modal-xl" : "";
 
     private string ModalClasses => IsOpen ? "show" : "";
 

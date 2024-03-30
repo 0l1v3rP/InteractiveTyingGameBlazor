@@ -200,6 +200,7 @@ function configueTextInput(dotNetRef, gameStatus, keyPressFun) {
 function setSubtitle(subtitle) {
     const typedText = normalizeSubtitle(subtitle);
     document.getElementById('rightTypingInput').value = typedText;
+    setCursorToStart();
 }
 
 function normalizeSubtitle(subtitle) {
@@ -208,4 +209,5 @@ function normalizeSubtitle(subtitle) {
         .replace(/‒/g, '-')
         .replace(/„/g, '"')
         .replace(/“/g, '"')
+        .replace(/\n/g, ' ')
 }

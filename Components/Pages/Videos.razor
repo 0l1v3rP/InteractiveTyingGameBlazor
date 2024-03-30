@@ -1,5 +1,6 @@
 ﻿@rendermode InteractiveServer
 @page "/Videos"
+@using InteractiveTyingGameBlazor.Components.Pages.Modals
 @using Syncfusion.Blazor.Grids;
 @using Syncfusion.Blazor.DropDowns;
 @using Syncfusion.Blazor.Buttons;
@@ -9,13 +10,17 @@
 @using System.Collections.ObjectModel;
 @using InteractiveTyingGameBlazor.Data.Services;
 @using Microsoft.AspNetCore.Authorization;
-@inject RegisteredVideosService data;
+@using Syncfusion.Blazor.Navigations;
+
+@using InteractiveTyingGameBlazor.Components.Pages.Charts;
+@inject RegisteredVideosService _data;
+@inject IJSRuntime JSRuntime
 @inherits Common;
 @attribute [Authorize]
-
+<script src="js/videos.js"></script>
 <SfGrid DataSource="@myVideos" Toolbar="@toolbarItems">
 	<GridEditSettings  AllowAdding="true" AllowEditing="true" AllowDeleting="true"></GridEditSettings>
-    <GridEvents OnActionComplete="@ActionCompleteHandler" OnActionBegin="@ActionBeginHandler" TValue="@RegisteredVideo"></GridEvents>
+    <GridEvents RowDeselected="@OnRowDeselected" RowSelected="@OnRowSelected" OnToolbarClick="@OnToolbarClick" OnActionComplete="@ActionCompleteHandler" OnActionBegin="@ActionBeginHandler" TValue="@RegisteredVideo"></GridEvents>
 	<GridColumns>
 		<GridColumn Field=@nameof(RegisteredVideo.Id) IsPrimaryKey="true" TextAlign="TextAlign.Center"  Visible="false"></GridColumn>
         <GridColumn Field=@nameof(RegisteredVideo.Title) HeaderText="Name" TextAlign="TextAlign.Center" ValidationRules="@Required"></GridColumn>
@@ -43,54 +48,73 @@
                 </SfComboBox>
             </EditTemplate>
         </GridColumn>
-        @if (IsAdmin)
-        {
-            <GridColumn HeaderText="Global" TextAlign="TextAlign.Center" Type="ColumnType.Boolean">
-                <Template Context="context">
-                    <SfCheckBox Checked="@((context as RegisteredVideo).IsGlobal)" Disabled=true></SfCheckBox>
-                </Template>
-                <EditTemplate Context="context">
-                    <SfCheckBox @bind-Checked="@((context as RegisteredVideo).IsGlobal)"></SfCheckBox>
-                </EditTemplate>
-            </GridColumn>
-        }
+        <GridColumn HeaderText="Global" TextAlign="TextAlign.Center" Type="ColumnType.Boolean">
+            <Template Context="context">
+                <SfCheckBox Checked="@((context as RegisteredVideo).IsGlobal)" Disabled=true></SfCheckBox>
+            </Template>
+            <EditTemplate Context="context">
+                <SfCheckBox @bind-Checked="@((context as RegisteredVideo).IsGlobal)"></SfCheckBox>
+            </EditTemplate>
+        </GridColumn>
 	</GridColumns>
 </SfGrid>
 
+@if(showPreview)
+{
+    <GenericModal IsOpen="true" Title="Chart" Large="true">
+        <CharacterFrequencyChart SelectedVideo="SelectedVideo"></CharacterFrequencyChart>
+    </GenericModal>
+}
+
 @code {
     private List<string> categoryOptions = Enum.GetNames(typeof(CategoryType)).ToList();
-
-    public ObservableCollection<string> currentLanguageOptions = new(); 
     private string? currentVideoUrl = null;
+    private bool showPreview = false;
+
+    public RegisteredVideo? SelectedVideo { get; set; } = null;
+
+    public ObservableCollection<string> currentLanguageOptions = new();
+
+    private async Task OnRowSelected(RowSelectEventArgs<RegisteredVideo> args)
+    {
+        SelectedVideo = args.Data;
+        await JSRuntime.InvokeVoidAsync("previewIsAccessible", true);
+    }
+
+    private async Task OnRowDeselected(RowDeselectEventArgs<RegisteredVideo> args)
+    {
+        SelectedVideo = null;
+        showPreview = false;
+        await JSRuntime.InvokeVoidAsync("previewIsAccessible", false);
+    }
+
     private async Task UpdateLanguageOptions(string videoUrl)
     {
         if (!string.IsNullOrEmpty(videoUrl) && currentVideoUrl != videoUrl)
         {
             currentVideoUrl = videoUrl;
-            var newOptions = (await YTMetadataExtract.GetTranscripts(videoUrl)).Select(i => i.Code);
+            var newOptions = (await YTMetadataExtract.
+                GetTranscripts(videoUrl)).
+                    Select(i => i.Name).Order();
+
             currentLanguageOptions.Clear();
+
             foreach (var option in newOptions)
-            {
                 currentLanguageOptions.Add(option);
-            }
-            StateHasChanged();
+
+            await InvokeAsync(StateHasChanged);
         }
 
         if (string.IsNullOrEmpty(videoUrl))
             currentLanguageOptions.Clear();
-
     }
     private string GetCategoryString(RegisteredVideo video)
-    {
-        return video?.Category.ToString();
-    }
+         => video?.Category.ToString();
 
     private void SetCategoryFromString(RegisteredVideo video, string value)
     {
         if (video != null && Enum.TryParse<CategoryType>(value, out var category))
-        {
             video.Category = category;
-        }
     }
 
     ValidationRules Required = new()
@@ -106,12 +130,23 @@
 
     private List<RegisteredVideo> myVideos = new();
 
-    private string[] toolbarItems = new string[] { "Add", "Edit", "Delete", "Update", "Cancel" };
+    private List<Object> toolbarItems;
 
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
-        myVideos = (await data.GetUserVideos()).ToList();
+        myVideos = (await _data.GetUserVideos()).ToList();
+        toolbarItems = new(){ "Add", "Edit", "Delete", "Update", "Cancel",
+        new ItemModel() { Text = "Preview", PrefixIcon = "bi-graph-up", Id = "Preview", CssClass="e-overlay"} };
+    }
+
+    public void OnToolbarClick(ClickEventArgs Args)
+    {
+        if(Args.Item.Text == "Preview")
+        {
+            showPreview = !showPreview;
+            StateHasChanged();
+        }
     }
 
     public void ActionBeginHandler(ActionEventArgs<RegisteredVideo> Args)
@@ -121,25 +156,18 @@
             Args.Data.UserId = userID;
 
             if (Args.Action == "Add")
-            {
-                data.Add(Args.Data);
-            }
+
+                _data.Add(Args.Data);
             else
-            {
-                data.Update(Args.Data);
-            }
+                _data.Update(Args.Data);
         }
-        if (Args.RequestType.Equals(Syncfusion.Blazor.Grids.Action.Delete))
-        {
-            data.Delete(Args.Data);
-        }
+        else if (Args.RequestType.Equals(Syncfusion.Blazor.Grids.Action.Delete))
+            _data.Delete(Args.Data);
     }
 
     public async Task ActionCompleteHandler(ActionEventArgs<RegisteredVideo> Args)
     {
         if (Args.RequestType.Equals(Syncfusion.Blazor.Grids.Action.Save))
-        {
-            myVideos = (await data.GetUserVideos()).ToList();
-        }
+            myVideos = (await _data.GetUserVideos()).ToList();
     }
 }

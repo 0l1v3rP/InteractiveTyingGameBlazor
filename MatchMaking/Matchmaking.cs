@@ -29,12 +29,19 @@ namespace InteractiveTyingGameBlazor.MatchMaking
         {
             if (GetSession(playerId) is null)
             {
-                Sessions.Add(new GameSession(_random.NextDouble(), playersNum, config));
+                GameSession item = new(_random.NextDouble(), playersNum, config, RemoveSession);
+
+                Sessions.Add(item);
+                
                 return Sessions.Last().Id;
             }
             return null;
         }
 
+        private void RemoveSession(GameSession session)
+        {
+            Sessions.Remove(session);
+        }
         public void UnregisterFromSession(string playerId)
         {
             if (Sessions.RemoveAll(i => i.PlayerExists(playerId) && i.PlayerGameStates.Count == 1) == 0)

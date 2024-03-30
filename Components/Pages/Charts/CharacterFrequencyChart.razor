@@ -1,0 +1,33 @@
+﻿@using InteractiveTyingGameBlazor.Models;
+@using InteractiveTyingGameBlazor.DbModels;
+@using InteractiveTyingGameBlazor.Utils;
+@using InteractiveTyingGameBlazor.Data.Services;
+@inject TypingResultService TypingResultService
+
+<GenericChart Data="chartData" XTitle="Time (seconds)" YTitle="Characters" />
+
+@code {
+    [Parameter]
+    public RegisteredVideo SelectedVideo { get; set; }
+    private List<ChartModel<int, int>> chartData = new();
+
+    protected override async void OnInitialized()
+    {
+        var captionTrack = await YTMetadataExtract.GetSubtitles(SelectedVideo.URL, SelectedVideo.Language);
+        int characterCount = 0, seconds = 0, interval = 20;
+        foreach(var caption in captionTrack.Captions)
+        {
+            if(caption.Offset.TotalSeconds < seconds + interval)
+            {
+                characterCount += caption?.Text.Length ?? 0;
+            }
+            else
+            {
+                chartData.Add(new ChartModel<int, int>(seconds, characterCount));
+                seconds += interval;
+                characterCount = 0;
+            }
+        }
+        StateHasChanged();
+    }
+}

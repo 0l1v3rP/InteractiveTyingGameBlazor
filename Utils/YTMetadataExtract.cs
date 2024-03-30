@@ -31,7 +31,7 @@ namespace InteractiveTyingGameBlazor.Utils
  
             return null;
         }
-
+            
         public static async Task<IEnumerable<Language>> GetTranscripts(string videoUrl)
         {
             return (await GetManifest(videoUrl)).Tracks.Select(i => i.Language);

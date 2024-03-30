@@ -20,7 +20,7 @@
 
 @inherits Common;
 
-<script src="js/player.js"></script>
+<script src="js/typingGame.js"></script>
 <div class="game-container" style="@(EnablePointerEvents(spinnerVisiblity))">
     <div id="video-container">
         <video id="my-video" class="video-js" controls preload="auto" width="860" height="355">
@@ -278,7 +278,7 @@
     }
 
     [JSInvokable]
-    public void MissedChar(char character, bool isCorrect) 
+    public void CharPressed(char character, bool isCorrect) 
         => Chars.Add(new(seconds, character, isCorrect));
 
     [JSInvokable]

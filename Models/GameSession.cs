@@ -5,10 +5,11 @@ using System.Collections.Generic;
 
 namespace InteractiveTyingGameBlazor.Models
 {
-    public class GameSession(double seed, int playersNum, GameConfig config) : BaseEntity
+    public class GameSession(double seed, int playersNum, GameConfig config, Action<GameSession> removeSession) : BaseEntity
     {
         public event Action? OnMatchFinished;
         public event Func<Task>? OnMatchStart;
+        private readonly Action<GameSession> removeSession = removeSession;
         public Dictionary<string, Game> PlayerGameStates { get; } = [];
         public double Seed { get; } = seed;
         public int PlayersNum { get; } = playersNum;
@@ -69,6 +70,7 @@ namespace InteractiveTyingGameBlazor.Models
             {   
                 EvaluatePlayers();
                 OnMatchFinished?.Invoke();
+                removeSession.Invoke(this);
             }
         }
 
