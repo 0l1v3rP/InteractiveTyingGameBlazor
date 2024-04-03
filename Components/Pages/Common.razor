@@ -3,14 +3,16 @@
 @inject AuthenticationStateProvider AuthenticationStateProvider;
 
 @code {
-    protected string userID = "";
-    protected bool IsAdmin = false;
+    protected string userID = String.Empty;
+    protected bool isAdmin = false;
+    protected string userName = String.Empty;
 
     protected override async Task OnInitializedAsync()
     {
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
         userID = user.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Concat("Anonymous",Guid.NewGuid().ToString());
-        IsAdmin = user.IsInRole("Admin");
-    }   
+        isAdmin = user.IsInRole("Admin");
+        userName = user.FindFirst(ClaimTypes.Name)?.Value ?? user.FindFirst(ClaimTypes.Email)?.Value ?? "Anonymous";
+    }
 }

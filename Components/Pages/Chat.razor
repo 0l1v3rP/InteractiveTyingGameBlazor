@@ -1,0 +1,70 @@
+﻿@page "/chat"
+@using InteractiveTyingGameBlazor.Data;
+@using Microsoft.AspNetCore.SignalR.Client;
+@using Syncfusion.Blazor.DropDowns;
+@using Microsoft.AspNetCore.Identity
+
+@inject UserManager<ApplicationUser> _userManager
+@inject NavigationManager _navigation
+
+<div>
+    <SfDropDownList OnChange="SelectUser" TValue="string" TItem="ApplicationUser" Placeholder="Select a user" AllowFiltering="true" DataSource="@users" Width="300px">
+        <DropDownListFieldSettings Text="UserName" Value="Id"></DropDownListFieldSettings>
+    </SfDropDownList>
+
+    <input type="text" @bind="message" />
+    <button @onclick="() => SendMessage(selectedUserId, message)">Send</button>
+
+    @foreach (var msg in messages)
+    {
+        <div>@msg</div>
+    }
+</div>
+
+@code {
+    private HubConnection hubConnection;
+    private List<ApplicationUser> users = [];
+    private List<string> messages = new List<string>();
+    private string selectedUserId;
+    private string message;
+
+    protected override async Task OnInitializedAsync()
+    {
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl(_navigation.ToAbsoluteUri("/chathub"))
+            .WithAutomaticReconnect()
+            .Build();
+
+        hubConnection.On<string, string>("ReceiveMessage", (senderId, message) =>
+        {
+            messages.Add($"{senderId}: {message}");
+            InvokeAsync(StateHasChanged);
+        });
+
+        await hubConnection.StartAsync();
+        users = _userManager.Users.ToList();
+    }
+
+    private void SelectUser(ChangeEventArgs e)
+    {
+        selectedUserId = e.Value.ToString();
+    }
+
+    private async Task SendMessage(string userId, string message)
+    {
+        if (!string.IsNullOrWhiteSpace(message))
+        {
+            // await hubConnection.InvokeAsync("SendMessage",, userId, message);
+            // this.message = string.Empty;
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (hubConnection is not null)
+        {
+            await hubConnection.StopAsync();
+            await hubConnection.DisposeAsync();
+        }
+    }
+}

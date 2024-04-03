@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace InteractiveTyingGameBlazor.DbModels
+namespace InteractiveTyingGameBlazor.Models
 {
     public class BaseEntity
     {

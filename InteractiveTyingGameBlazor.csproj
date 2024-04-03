@@ -25,12 +25,12 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="SubtitlesParser" Version="1.5.1" />
-    <PackageReference Include="Syncfusion.Blazor.Buttons" Version="25.1.35" />
-    <PackageReference Include="Syncfusion.Blazor.Charts" Version="25.1.35" />
-    <PackageReference Include="Syncfusion.Blazor.Core" Version="25.1.35" />
-    <PackageReference Include="Syncfusion.Blazor.Grid" Version="25.1.35" />
-    <PackageReference Include="Syncfusion.Blazor.Spinner" Version="25.1.35" />
-    <PackageReference Include="Syncfusion.Blazor.Themes" Version="25.1.35" />
+    <PackageReference Include="Syncfusion.Blazor.Buttons" Version="25.1.38" />
+    <PackageReference Include="Syncfusion.Blazor.Charts" Version="25.1.38" />
+    <PackageReference Include="Syncfusion.Blazor.Core" Version="25.1.38" />
+    <PackageReference Include="Syncfusion.Blazor.Grid" Version="25.1.38" />
+    <PackageReference Include="Syncfusion.Blazor.Spinner" Version="25.1.38" />
+    <PackageReference Include="Syncfusion.Blazor.Themes" Version="25.1.38" />
     <PackageReference Include="YoutubeExplode" Version="6.3.13" />
   </ItemGroup>
 

@@ -1,4 +1,4 @@
-﻿using InteractiveTyingGameBlazor.DbModels;
+﻿using InteractiveTyingGameBlazor.Models;
 using Microsoft.Identity.Client;
 using System;
 using System.Collections.Generic;
@@ -8,6 +8,7 @@ namespace InteractiveTyingGameBlazor.Models
     public class GameSession(double seed, int playersNum, GameConfig config, Action<GameSession> removeSession) : BaseEntity
     {
         public event Action? OnMatchFinished;
+
         public event Func<Task>? OnMatchStart;
         private readonly Action<GameSession> removeSession = removeSession;
         public Dictionary<string, Game> PlayerGameStates { get; } = [];

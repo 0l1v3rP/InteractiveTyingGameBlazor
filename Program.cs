@@ -1,4 +1,5 @@
 using InteractiveTyingGameBlazor;
+using InteractiveTyingGameBlazor.Chat;
 using InteractiveTyingGameBlazor.Components;
 using InteractiveTyingGameBlazor.Components.Account;
 using InteractiveTyingGameBlazor.Data;
@@ -26,6 +27,7 @@ builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuth
 builder.Services.AddScoped<TypingResultService>();
 builder.Services.AddScoped<RegisteredVideosService>();
 builder.Services.AddSingleton<MatchmakingService>();
+builder.Services.AddSingleton<PublicChatService>();
 
 builder.Services.AddAuthentication(options =>
     {
@@ -47,7 +49,7 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
     .AddDefaultTokenProviders();
 
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
-
+builder.Services.AddSignalR();
 builder.Services.AddSyncfusionBlazor();
 builder.Services.AddApplicationInsightsTelemetry(builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]);
 
@@ -73,6 +75,11 @@ try
 
     app.UseStaticFiles();
     app.UseAntiforgery();
+
+
+    app.MapBlazorHub();
+    app.MapHub<ChatHub>("/chathub");
+    
 
     app.MapRazorComponents<App>()
         .AddInteractiveServerRenderMode();

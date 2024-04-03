@@ -1,5 +1,5 @@
 ﻿@using InteractiveTyingGameBlazor.Data.Services;
-@using InteractiveTyingGameBlazor.DbModels;
+@using InteractiveTyingGameBlazor.Models;
 @using InteractiveTyingGameBlazor.Models;
 @using Microsoft.AspNetCore.SignalR.Client;
 @using YoutubeExplode;
@@ -158,7 +158,7 @@
             playersNum = players;
             joinCallback = JoinCallback;
         }
-        GameConfig config = new(selectedVideo.URL, time, captions, selectedVideo.Title);
+        GameConfig config = new(selectedVideo.URL, time, captions, selectedVideo.Title, selectedVideo.Id);
         Guid? sessionId = _matchMaking.TryCreateSession(UserId, playersNum, config);
         if (sessionId is not null)
         {

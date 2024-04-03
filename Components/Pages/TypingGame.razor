@@ -14,6 +14,7 @@
 @using System.Text.Json;
 
 @inject TypingResultService _result;
+@inject RegisteredVideosService _video;
 @inject IJSRuntime JSRuntime
 @inject MatchMaking.MatchmakingService _matchmaking;
 @inject NavigationManager _navigation;
@@ -21,6 +22,8 @@
 @inherits Common;
 
 <script src="js/typingGame.js"></script>
+<script src="js/disposeInterop.js"></script>
+
 <div class="game-container" style="@(EnablePointerEvents(spinnerVisiblity))">
     <div id="video-container">
         <video id="my-video" class="video-js" controls preload="auto" width="860" height="355">
@@ -150,16 +153,18 @@
         await JSRuntime.InvokeVoidAsync("updateVideoSource", config.URL, config.Time);
         Session.Started = true;
         Chars = new List<TypedChar>();
+        _video.IncreaseCounter(config.VideoId);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if(firstRender) {
+            var dotNetRef = DotNetObjectReference.Create(this);
             for (int i = 0; i < 5; i++)
             {
                 try
                 {
-                    await JSRuntime.InvokeVoidAsync("initVideoPlayer", "my-video", DotNetObjectReference.Create(this));
+                    await JSRuntime.InvokeVoidAsync("initVideoPlayer", "my-video", dotNetRef);
                     break;
                 }
                 catch
@@ -167,6 +172,7 @@
                     await Task.Delay(500);
                 }
             }
+            await JSRuntime.InvokeVoidAsync("disposeInterop", dotNetRef);
         }
     }
 

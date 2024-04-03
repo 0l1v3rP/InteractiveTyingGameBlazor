@@ -1,4 +1,4 @@
-using InteractiveTyingGameBlazor.DbModels;
+using InteractiveTyingGameBlazor.Models;
 using InteractiveTyingGameBlazor.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;

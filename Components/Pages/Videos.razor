@@ -4,7 +4,7 @@
 @using Syncfusion.Blazor.Grids;
 @using Syncfusion.Blazor.DropDowns;
 @using Syncfusion.Blazor.Buttons;
-@using InteractiveTyingGameBlazor.DbModels;
+@using InteractiveTyingGameBlazor.Models;
 @using InteractiveTyingGameBlazor.Utils;
 @using InteractiveTyingGameBlazor.Models;
 @using System.Collections.ObjectModel;
@@ -61,7 +61,7 @@
 
 @if(showPreview)
 {
-    <GenericModal IsOpen="true" Title="Chart" Large="true">
+    <GenericModal IsOpen="true" Title="Number of characters throughout video" Large="true">
         <CharacterFrequencyChart SelectedVideo="SelectedVideo"></CharacterFrequencyChart>
     </GenericModal>
 }
@@ -154,9 +154,7 @@
         if (Args.RequestType.Equals(Syncfusion.Blazor.Grids.Action.Save))
         {
             Args.Data.UserId = userID;
-
             if (Args.Action == "Add")
-
                 _data.Add(Args.Data);
             else
                 _data.Update(Args.Data);

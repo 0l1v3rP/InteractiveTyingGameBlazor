@@ -27,10 +27,6 @@
         }
     });
 
-    window.addEventListener('beforeunload', async () => {
-        await dotNetRef.invokeMethodAsync('DisposeComponent');
-    });
-
     rightInput.addEventListener('click', (event) => {
         setCursorToStart();
         event.preventDefault();

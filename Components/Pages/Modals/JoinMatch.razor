@@ -37,7 +37,7 @@ else
 
     private List<GameSession> sessions;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         sessions = _matchMaking.Sessions.Where(i => i.PlayerGameStates.Count < i.PlayersNum && !i.Started).ToList();
     }

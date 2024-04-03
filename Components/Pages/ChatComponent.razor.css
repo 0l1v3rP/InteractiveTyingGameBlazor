@@ -1,0 +1,22 @@
+﻿.chat-container {
+    margin-top: 30px;
+}
+
+.chat-component {
+    border-width: medium;
+    border-color: black;
+}
+
+.chat-messages {
+    width: 100%;
+    overflow-y: scroll;
+    padding: 5px;
+    background-color: lightgrey;
+    height: 200px;
+}
+
+.chat-input {
+    border-top-width: medium;
+    height: 35px;
+    width: 100%;
+}

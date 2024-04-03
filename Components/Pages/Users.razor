@@ -1,0 +1,55 @@
+﻿@rendermode InteractiveServer
+
+@page "/Users"
+@using InteractiveTyingGameBlazor.Components.Pages.Modals
+@using Syncfusion.Blazor.Grids
+@using System.Collections.ObjectModel
+@using InteractiveTyingGameBlazor.Data.Services
+@using Microsoft.AspNetCore.Authorization
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Identity
+@using InteractiveTyingGameBlazor.Data
+
+@inject UserManager<ApplicationUser> _userManager
+@inherits Common
+@attribute [Authorize(Roles = "Admin")]
+
+<div class="grid-container">
+    <SfGrid Width="600" DataSource="@users" Toolbar=@(new List<string>() { "Delete"}) AllowSelection="true" >
+        <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Single"></GridSelectionSettings>
+        <GridEditSettings  AllowDeleting="true" ></GridEditSettings>
+        <GridEvents  OnActionBegin="@ActionBeginHandler" TValue="@ApplicationUser"></GridEvents>
+        <GridColumns>
+            <GridColumn Field=@nameof(ApplicationUser.Email) IsPrimaryKey="true" TextAlign="@TextAlign.Center"></GridColumn>
+        </GridColumns>
+    </SfGrid> 
+</div>
+
+@code {
+    private IEnumerable<ApplicationUser> users;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        var admins = await _userManager.GetUsersInRoleAsync("Admin");
+        var allUsers = _userManager.Users.ToList(); 
+        users = allUsers.Except(admins).ToList();
+    }
+
+    public async Task ActionBeginHandler(ActionEventArgs<ApplicationUser> args)
+    {
+        if (args.RequestType.Equals(Syncfusion.Blazor.Grids.Action.Delete))
+        {
+            var user = args.Data;
+            if (user != null)
+            {
+                var result = await _userManager.DeleteAsync(user);
+                if (result.Succeeded)
+                {
+                    users = users.Where(u => u.Id != user.Id).ToList();
+                    StateHasChanged();
+                }
+            }
+        }
+    }
+}

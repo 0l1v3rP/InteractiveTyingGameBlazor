@@ -4,27 +4,25 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 
-namespace InteractiveTyingGameBlazor.DbModels
+namespace InteractiveTyingGameBlazor.Models
 {
     public class RegisteredVideo : BaseEntity
     {
         [ForeignKey("ApplicationUser")]
-        [AllowNull]
         public string UserId { get; set; }
 
-        [Required]
         public string URL { get; set; }
 
-        [Required]
         public string Language { get; set; }
 
-        [Required]
         public CategoryType? Category { get; set; } = null;
 
-        [Required]
         public string Title { get; set; }
 
-        [Required]
+        /// <summary>
+        /// Specifies how many times was this video played
+        /// </summary>
+        public int Counter { get; set; } = 0;
         public bool IsGlobal { get; set; } = false;
         public ApplicationUser User { get; set; }
     }

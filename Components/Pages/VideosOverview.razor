@@ -1,0 +1,72 @@
+﻿@rendermode InteractiveServer
+
+@page "/VideosOverview"
+@using InteractiveTyingGameBlazor.Components.Pages.Modals
+@using Syncfusion.Blazor.Grids
+@using System.Collections.ObjectModel
+@using InteractiveTyingGameBlazor.Data.Services
+@using Microsoft.AspNetCore.Authorization
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Identity
+@using InteractiveTyingGameBlazor.Data
+@using InteractiveTyingGameBlazor.Models
+@using InteractiveTyingGameBlazor.Models
+@using Microsoft.EntityFrameworkCore;
+@inject RegisteredVideosService _videoData;
+@inherits Common
+
+<div class="grid-container">
+    <SfGrid DataSource="@videos" Toolbar="@toolbar">
+        <GridEditSettings AllowDeleting="@isAdmin"></GridEditSettings>
+        <GridEvents  TValue="@VideoOverview"></GridEvents>
+        <GridColumns>
+            <GridColumn Field=@nameof(VideoOverview.VideoId) IsPrimaryKey="true" Visible="false" TextAlign="@TextAlign.Center"></GridColumn>
+            <GridColumn Field=@nameof(VideoOverview.VideoName) TextAlign="@TextAlign.Center"></GridColumn>
+            <GridColumn Field=@nameof(VideoOverview.AddedBy) TextAlign="@TextAlign.Center"></GridColumn>
+            <GridColumn Field=@nameof(VideoOverview.CPMAverage) TextAlign="@TextAlign.Center"></GridColumn>
+            <GridColumn Field=@nameof(VideoOverview.Counter) TextAlign="@TextAlign.Center"></GridColumn>
+        </GridColumns>
+    </SfGrid>
+</div>
+
+@* @if  (!userID.StartsWith("Anonymous")) *@
+@* { *@
+    <ChatComponent></ChatComponent>
+@* } *@
+
+@code {
+    private IEnumerable<VideoOverview> videos;
+
+    private List<string> toolbar = new();
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        videos = _videoData.Read<RegisteredVideo>(i => i.
+            Include(i => i.User).Where(i => i.IsGlobal)).Select(i => new VideoOverview(i));
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        if (isAdmin)
+            toolbar.Add("Delete");
+    }
+    public async Task ActionBeginHandler(ActionEventArgs<VideoOverview> args)
+    {
+        if (args.RequestType.Equals(Syncfusion.Blazor.Grids.Action.Delete))
+        {
+            var video = args.Data;
+            if (video!= null)
+            {
+                bool result = _videoData.DeleteBasedOnOverview(video);
+                if (result)
+                {
+                    videos = videos.Where(i => i.VideoId != video.VideoId).ToList();
+                    StateHasChanged();
+                }
+            }
+        }
+    }
+
+}

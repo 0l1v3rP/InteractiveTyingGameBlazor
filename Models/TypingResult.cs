@@ -1,5 +1,5 @@
 ﻿using InteractiveTyingGameBlazor.Data;
-using InteractiveTyingGameBlazor.DbModels;
+using InteractiveTyingGameBlazor.Models;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;

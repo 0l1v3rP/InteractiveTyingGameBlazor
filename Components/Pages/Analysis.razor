@@ -23,8 +23,8 @@
     public string Key { get; set; } = Charts.Keys.First();
 
     public static Dictionary<string, Type> Charts = new Dictionary<string, Type> {
-        {"Average user cpm chart", typeof(AverageUserCPMChart)},
         {"All users cpm chart", typeof(UsersCPMStatisticChart)},
+        {"Average user cpm chart", typeof(AverageUserCPMChart)},
     };
 
     private RenderFragment RenderChart() => builder =>
