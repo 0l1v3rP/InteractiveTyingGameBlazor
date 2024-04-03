@@ -1,8 +1,8 @@
 ﻿using InteractiveTyingGameBlazor.Models;
 using Microsoft.AspNetCore.Components.Authorization;
 using InteractiveTyingGameBlazor.Extensions;
-using InteractiveTyingGameBlazor.Models;
 using AngleSharp.Dom;
+using InteractiveTyingGameBlazor.DbModels;
 
 namespace InteractiveTyingGameBlazor.Data.Services
 {

@@ -6,9 +6,10 @@
 @inherits Common;
 
 <script src="js/disposeInterop.js"></script>
+<script src="js/chatComponent.js"></script>
 
 <div class="chat-container">
-    <div class="chat-messages chat-component" @ref="chatMessagesContainer">
+    <div id="chatMessages" class="chat-messages chat-component" @ref="chatMessagesContainer" @onchange="@ScrollToBottom">
     @foreach(var message in messages)
     {
         <div style="color: @message.Color">
@@ -24,7 +25,7 @@
     private string textMessage = string.Empty;
     private ElementReference chatMessagesContainer;
     private Random random = new Random();
-
+    private bool shouldScroll = false;
     private async Task HandleKeyUp(KeyboardEventArgs e) 
     {
         if (e.Key == "Enter") {
@@ -46,8 +47,8 @@
     private async Task Update()
     {
         messages = _chatService.Messages;
-        await ScrollToBottom();
         await InvokeAsync(StateHasChanged);
+        shouldScroll = true;
     }
 
     protected override async Task OnInitializedAsync()
@@ -57,9 +58,18 @@
         messages = _chatService.Messages;
     }
 
-    public void DisposeAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (shouldScroll)
+        {
+            await ScrollToBottom();
+            shouldScroll = false;
+        }
+    }
+    [JSInvokable]
+    public void DisposeComponent()
         => _chatService.UpdateAsync -= Update;
 
     private async Task ScrollToBottom()
-        => await JSRuntime.InvokeVoidAsync("scrollToBottom", chatMessagesContainer);
+        => await JSRuntime.InvokeVoidAsync("scrollToBottom");
 }

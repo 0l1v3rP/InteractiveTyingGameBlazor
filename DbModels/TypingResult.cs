@@ -1,10 +1,9 @@
 ﻿using InteractiveTyingGameBlazor.Data;
-using InteractiveTyingGameBlazor.Models;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
 
-namespace InteractiveTyingGameBlazor.Models
+namespace InteractiveTyingGameBlazor.DbModels
 {
     public class TypingResult : BaseEntity
     {
@@ -20,10 +19,10 @@ namespace InteractiveTyingGameBlazor.Models
 
         [Required]
         public float Accuracy { get; set; }
-        
+
         [Required]
         public DateTime Date { get; set; }
-        
+
         [Required]
         public string VideoId { get; set; }
 

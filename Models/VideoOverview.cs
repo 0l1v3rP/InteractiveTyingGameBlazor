@@ -1,4 +1,4 @@
-﻿using InteractiveTyingGameBlazor.Models;
+﻿using InteractiveTyingGameBlazor.DbModels;
 using System.ComponentModel.DataAnnotations;
 
 namespace InteractiveTyingGameBlazor.Models

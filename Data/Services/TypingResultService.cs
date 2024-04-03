@@ -1,4 +1,5 @@
-﻿using InteractiveTyingGameBlazor.Extensions;
+﻿using InteractiveTyingGameBlazor.DbModels;
+using InteractiveTyingGameBlazor.Extensions;
 using InteractiveTyingGameBlazor.Models;
 using Microsoft.AspNetCore.Components.Authorization;
 namespace InteractiveTyingGameBlazor.Data.Services

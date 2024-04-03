@@ -1,19 +1,13 @@
-using InteractiveTyingGameBlazor;
 using InteractiveTyingGameBlazor.Chat;
 using InteractiveTyingGameBlazor.Components;
 using InteractiveTyingGameBlazor.Components.Account;
 using InteractiveTyingGameBlazor.Data;
 using InteractiveTyingGameBlazor.Data.Services;
-using InteractiveTyingGameBlazor.MatchMaking;
+using InteractiveTyingGameBlazor.GameManagement;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Syncfusion.Blazor;
-using Syncfusion.Blazor.Inputs;
-using System.Diagnostics;
-
 
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
@@ -77,8 +71,8 @@ try
     app.UseAntiforgery();
 
 
-    app.MapBlazorHub();
-    app.MapHub<ChatHub>("/chathub");
+    //app.MapBlazorHub();
+    //app.MapHub<ChatHub>("/chathub");
     
 
     app.MapRazorComponents<App>()

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace InteractiveTyingGameBlazor.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240329082735_removingMissedChar")]
-    partial class removingMissedChar
+    [Migration("20240403101422_InitiaL")]
+    partial class InitiaL
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -90,7 +90,37 @@ namespace InteractiveTyingGameBlazor.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("InteractiveTyingGameBlazor.DbModels.RegisteredVideo", b =>
+            modelBuilder.Entity("InteractiveTyingGameBlazor.Models.Message", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RecipentId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("SenderId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RecipentId");
+
+                    b.HasIndex("SenderId");
+
+                    b.ToTable("Messages");
+                });
+
+            modelBuilder.Entity("InteractiveTyingGameBlazor.Models.RegisteredVideo", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -99,6 +129,9 @@ namespace InteractiveTyingGameBlazor.Migrations
                     b.Property<string>("Category")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Counter")
+                        .HasColumnType("int");
 
                     b.Property<bool>("IsGlobal")
                         .HasColumnType("bit");
@@ -295,7 +328,24 @@ namespace InteractiveTyingGameBlazor.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("InteractiveTyingGameBlazor.DbModels.RegisteredVideo", b =>
+            modelBuilder.Entity("InteractiveTyingGameBlazor.Models.Message", b =>
+                {
+                    b.HasOne("InteractiveTyingGameBlazor.Data.ApplicationUser", "Recipent")
+                        .WithMany()
+                        .HasForeignKey("RecipentId")
+                        .IsRequired();
+
+                    b.HasOne("InteractiveTyingGameBlazor.Data.ApplicationUser", "Sender")
+                        .WithMany()
+                        .HasForeignKey("SenderId")
+                        .IsRequired();
+
+                    b.Navigation("Recipent");
+
+                    b.Navigation("Sender");
+                });
+
+            modelBuilder.Entity("InteractiveTyingGameBlazor.Models.RegisteredVideo", b =>
                 {
                     b.HasOne("InteractiveTyingGameBlazor.Data.ApplicationUser", "User")
                         .WithMany()

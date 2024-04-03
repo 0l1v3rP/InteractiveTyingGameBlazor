@@ -1,7 +1,7 @@
 ﻿using InteractiveTyingGameBlazor.Models;
 using Microsoft.AspNetCore.SignalR;
 
-namespace InteractiveTyingGameBlazor.MatchMaking
+namespace InteractiveTyingGameBlazor.GameManagement
 {
     public class MatchmakingService()
     {
@@ -15,16 +15,16 @@ namespace InteractiveTyingGameBlazor.MatchMaking
             var match = Sessions.First(i => i.Id == matchId);
             bool joined = match.AddPlayer(playerId);
             if (joined)
-             {
+            {
                 match.OnMatchStart += onStart;
                 match.TryToStartMatch();
             }
             return joined;
         }
-           
+
         public GameSession? GetSession(string playerId)
             => Sessions.FirstOrDefault(i => i.PlayerExists(playerId));
-       
+
         public Guid? TryCreateSession(string playerId, int playersNum, GameConfig config)
         {
             if (GetSession(playerId) is null)
@@ -32,7 +32,7 @@ namespace InteractiveTyingGameBlazor.MatchMaking
                 GameSession item = new(_random.NextDouble(), playersNum, config, RemoveSession);
 
                 Sessions.Add(item);
-                
+
                 return Sessions.Last().Id;
             }
             return null;

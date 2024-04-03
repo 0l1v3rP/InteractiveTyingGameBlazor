@@ -1,11 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using InteractiveTyingGameBlazor.Models;
 using Microsoft.AspNetCore.Components.Authorization;
 using System.Linq.Expressions;
+using InteractiveTyingGameBlazor.DbModels;
 
 namespace InteractiveTyingGameBlazor.Data.Services
 {
-	public class SharedService<T>(ApplicationDbContext dbContext, AuthenticationStateProvider auth) where T : BaseEntity
+    public class SharedService<T>(ApplicationDbContext dbContext, AuthenticationStateProvider auth) where T : BaseEntity
 	{
 		protected readonly ApplicationDbContext _dbContext = dbContext;
 		protected readonly AuthenticationStateProvider _auth = auth;

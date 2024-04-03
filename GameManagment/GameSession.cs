@@ -1,9 +1,7 @@
-﻿using InteractiveTyingGameBlazor.Models;
-using Microsoft.Identity.Client;
-using System;
-using System.Collections.Generic;
+﻿using InteractiveTyingGameBlazor.DbModels;
+using InteractiveTyingGameBlazor.Models;
 
-namespace InteractiveTyingGameBlazor.Models
+namespace InteractiveTyingGameBlazor.GameManagement
 {
     public class GameSession(double seed, int playersNum, GameConfig config, Action<GameSession> removeSession) : BaseEntity
     {
@@ -21,7 +19,7 @@ namespace InteractiveTyingGameBlazor.Models
         public bool AddPlayer(string playerId)
         {
             if (PlayerGameStates.Count < PlayersNum)
-            { 
+            {
                 PlayerGameStates[playerId] = new Game();
                 return true;
             }
@@ -29,8 +27,8 @@ namespace InteractiveTyingGameBlazor.Models
         }
 
         public void TryToStartMatch()
-        {  
-            if(PlayerGameStates.Count == PlayersNum)
+        {
+            if (PlayerGameStates.Count == PlayersNum)
             {
                 OnMatchStart?.Invoke();
             }
@@ -46,7 +44,8 @@ namespace InteractiveTyingGameBlazor.Models
 
         private void EvaluatePlayers()
         {
-            if (PlayerGameStates.Count > 1) {
+            if (PlayerGameStates.Count > 1)
+            {
                 int place = 1;
                 foreach (var game in PlayerGameStates.OrderByDescending(i => i.Value.CPM).Select(i => i.Value))
                 {
@@ -56,10 +55,10 @@ namespace InteractiveTyingGameBlazor.Models
             }
         }
 
-        public void PlayerFinished(string playerId) 
+        public void PlayerFinished(string playerId)
         {
             if (PlayerGameStates.TryGetValue(playerId, out Game? value))
-            {   
+            {
                 value.Finished = true;
                 CheckMatchFnished();
             }
@@ -68,7 +67,7 @@ namespace InteractiveTyingGameBlazor.Models
         public void CheckMatchFnished()
         {
             if (PlayerGameStates.Values.All(i => i.Finished))
-            {   
+            {
                 EvaluatePlayers();
                 OnMatchFinished?.Invoke();
                 removeSession.Invoke(this);
@@ -76,12 +75,12 @@ namespace InteractiveTyingGameBlazor.Models
         }
 
         public void UnregisterPlayer(string playerId)
-            => PlayerGameStates.Remove(playerId);        
+            => PlayerGameStates.Remove(playerId);
 
         public bool PlayerExists(string playerId)
             => PlayerGameStates.ContainsKey(playerId);
 
-        public bool IsPlayerReady(string playerId)        
+        public bool IsPlayerReady(string playerId)
             => PlayerGameStates.TryGetValue(playerId, out var game) && game.Ready;
 
         public bool MatchReady()

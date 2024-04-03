@@ -25,7 +25,7 @@
             setCursorToStart();
             event.preventDefault();
         }
-    });
+    }); 
 
     rightInput.addEventListener('click', (event) => {
         setCursorToStart();

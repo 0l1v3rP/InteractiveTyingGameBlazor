@@ -1,22 +1,23 @@
 ﻿@rendermode InteractiveServer
 @page "/"
-@using SubtitlesParser.Classes.Parsers;
-@using SubtitlesParser.Classes
-@using InteractiveTyingGameBlazor.Components.Pages.Modals;
-@using System.Timers;
-@using InteractiveTyingGameBlazor.Models;
-@using System.Security.Claims;
-@using InteractiveTyingGameBlazor.Data.Services;
-@using YoutubeExplode;
-@using YoutubeExplode.Videos.ClosedCaptions;
-@using Syncfusion.Blazor.Spinner;
-@using Microsoft.AspNetCore.SignalR.Client;
-@using System.Text.Json;
+@	using SubtitlesParser.Classes.Parsers;
+@	using SubtitlesParser.Classes
+@	using InteractiveTyingGameBlazor.Components.Pages.Modals;
+@	using System.Timers;
+@	using InteractiveTyingGameBlazor.Models;
+@	using System.Security.Claims;
+@	using InteractiveTyingGameBlazor.Data.Services;
+@	using YoutubeExplode;
+@	using YoutubeExplode.Videos.ClosedCaptions;
+@	using Syncfusion.Blazor.Spinner;
+@	using Microsoft.AspNetCore.SignalR.Client;
+@	using System.Text.Json;
+	using InteractiveTyingGameBlazor.DbModels;
 
 @inject TypingResultService _result;
 @inject RegisteredVideosService _video;
 @inject IJSRuntime JSRuntime
-@inject MatchMaking.MatchmakingService _matchmaking;
+@inject MatchmakingService _matchmaking;
 @inject NavigationManager _navigation;
 
 @inherits Common;
@@ -120,14 +121,14 @@
     private void AfterSubmit()
     {
         TypingResult result = new()
-            {
+        {
             CPM = Session.PlayerGameStates[userID].CPM,
             Accuracy = Session.PlayerGameStates[userID].Accuracy,
             Date = DateTime.UtcNow,
             VideoId = config.URL,
             UserId = userID.StartsWith("Anonymous") ? null : userID,
             Chars = JsonSerializer.Serialize(Chars)
-    };
+        };
         _result.Add(result);
     }
 

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Syncfusion.Blazor.Charts.Chart.Internal;
 
-namespace InteractiveTyingGameBlazor.Chat
+namespace InteractiveTyingGameBlazor.Hubs
 {
     public class ChatHub : Hub
     {
