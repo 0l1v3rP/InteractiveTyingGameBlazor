@@ -1,18 +1,17 @@
 ﻿@rendermode InteractiveServer
 
 @page "/VideosOverview"
-@	using InteractiveTyingGameBlazor.Components.Pages.Modals
-@	using Syncfusion.Blazor.Grids
-@	using System.Collections.ObjectModel
-@	using InteractiveTyingGameBlazor.Data.Services
-@	using Microsoft.AspNetCore.Authorization
-@	using System.ComponentModel.DataAnnotations
-@	using Microsoft.AspNetCore.Identity
-@	using InteractiveTyingGameBlazor.Data
-@	using InteractiveTyingGameBlazor.Models
-@	using InteractiveTyingGameBlazor.Models
-@	using Microsoft.EntityFrameworkCore;
-	using InteractiveTyingGameBlazor.DbModels;
+@using InteractiveTyingGameBlazor.Components.Pages.Modals
+@using Syncfusion.Blazor.Grids
+@using System.Collections.ObjectModel
+@using InteractiveTyingGameBlazor.Data.Services
+@using Microsoft.AspNetCore.Authorization
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Identity
+@using InteractiveTyingGameBlazor.Data
+@using InteractiveTyingGameBlazor.Models
+@using Microsoft.EntityFrameworkCore;
+@using InteractiveTyingGameBlazor.DbModels;
 @inject RegisteredVideosService _videoData;
 @inherits Common
 
@@ -38,7 +37,7 @@
 @code {
     private IEnumerable<VideoOverview> videos;
 
-    private List<string> toolbar = new();
+    private List<string> toolbar = [];
 
     protected override void OnInitialized()
     {
@@ -69,5 +68,4 @@
             }
         }
     }
-
 }

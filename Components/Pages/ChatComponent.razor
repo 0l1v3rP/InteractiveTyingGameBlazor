@@ -4,8 +4,7 @@
 @inject PublicChatService _chatService;
 @inject IJSRuntime JSRuntime;
 @inherits Common;
-
-<script src="js/disposeInterop.js"></script>
+@implements IDisposable
 <script src="js/chatComponent.js"></script>
 
 <div class="chat-container">
@@ -28,7 +27,8 @@
     private bool shouldScroll = false;
     private async Task HandleKeyUp(KeyboardEventArgs e) 
     {
-        if (e.Key == "Enter") {
+        if (e.Key == "Enter" && textMessage != string.Empty)
+        {
             await SendMessage();
         }
     }
@@ -57,17 +57,25 @@
         _chatService.UpdateAsync += Update;
         messages = _chatService.Messages;
     }
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        await base.OnAfterRenderAsync(firstRender);
+        if (firstRender)
+        {
+            var dotNetRef = DotNetObjectReference.Create(this);
+            await JSRuntime.InvokeVoidAsync("disposeInterop", dotNetRef);
+        }
         if (shouldScroll)
         {
             await ScrollToBottom();
             shouldScroll = false;
         }
     }
-    [JSInvokable]
-    public void DisposeComponent()
+    // [JSInvokable]
+    // public void DisposeComponent()
+    //     => _chatService.UpdateAsync -= Update;
+
+    public void Dispose()
         => _chatService.UpdateAsync -= Update;
 
     private async Task ScrollToBottom()

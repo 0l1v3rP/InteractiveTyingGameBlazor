@@ -1,29 +1,29 @@
 ﻿@rendermode InteractiveServer
 @page "/"
-@	using SubtitlesParser.Classes.Parsers;
-@	using SubtitlesParser.Classes
-@	using InteractiveTyingGameBlazor.Components.Pages.Modals;
-@	using System.Timers;
-@	using InteractiveTyingGameBlazor.Models;
-@	using System.Security.Claims;
-@	using InteractiveTyingGameBlazor.Data.Services;
-@	using YoutubeExplode;
-@	using YoutubeExplode.Videos.ClosedCaptions;
-@	using Syncfusion.Blazor.Spinner;
-@	using Microsoft.AspNetCore.SignalR.Client;
-@	using System.Text.Json;
-	using InteractiveTyingGameBlazor.DbModels;
+@using SubtitlesParser.Classes.Parsers;
+@using SubtitlesParser.Classes
+@using InteractiveTyingGameBlazor.Components.Pages.Modals;
+@using System.Timers;
+@using InteractiveTyingGameBlazor.Models;
+@using System.Security.Claims;
+@using InteractiveTyingGameBlazor.Data.Services;
+@using YoutubeExplode;
+@using YoutubeExplode.Videos.ClosedCaptions;
+@using Syncfusion.Blazor.Spinner;
+@using Microsoft.AspNetCore.SignalR.Client;
+@using System.Text.Json;
+@using InteractiveTyingGameBlazor.DbModels;
+@using InteractiveTyingGameBlazor.GameManagement;
+@using Microsoft.AspNetCore.Authorization;
 
 @inject TypingResultService _result;
 @inject RegisteredVideosService _video;
 @inject IJSRuntime JSRuntime
 @inject MatchmakingService _matchmaking;
 @inject NavigationManager _navigation;
-
 @inherits Common;
-
+@implements IDisposable
 <script src="js/typingGame.js"></script>
-<script src="js/disposeInterop.js"></script>
 
 <div class="game-container" style="@(EnablePointerEvents(spinnerVisiblity))">
     <div id="video-container">
@@ -319,4 +319,9 @@
     public double GetSeedValue()
         => Session.Seed;
     #endregion
+
+    public void Dispose()
+    {
+        DisposeComponent();
+    }
 }

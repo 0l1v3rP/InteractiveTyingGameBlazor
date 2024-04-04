@@ -15,15 +15,6 @@ namespace InteractiveTyingGameBlazor.Data.Services
 			return query(_dbContext.Set<T>()).ToList();
 		}
 
-        [Obsolete]
-        public void UpdateProperty<TProperty>(T entity, Expression<Func<T, TProperty>> propertyExpression, TProperty value)
-        {
-            var entityEntry = _dbContext.Attach(entity);
-            entityEntry.Property(propertyExpression).CurrentValue = value;
-            entityEntry.Property(propertyExpression).IsModified = true;
-            _dbContext.SaveChanges();
-        }
-
         public void Add(T entity)
 		{
 			_dbContext.Set<T>().Add(entity);

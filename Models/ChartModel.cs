@@ -1,4 +1,6 @@
-﻿namespace InteractiveTyingGameBlazor.Models
+﻿using Microsoft.AspNetCore.Authorization;
+
+namespace InteractiveTyingGameBlazor.Models
 {
     public class ChartModel<T1, T2>(T1 x, T2 y)
     {

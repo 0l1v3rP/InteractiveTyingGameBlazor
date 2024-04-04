@@ -1,19 +1,17 @@
 ﻿@rendermode InteractiveServer
 @page "/Videos"
-@	using InteractiveTyingGameBlazor.Components.Pages.Modals
-@	using Syncfusion.Blazor.Grids;
-@	using Syncfusion.Blazor.DropDowns;
-@	using Syncfusion.Blazor.Buttons;
-@	using InteractiveTyingGameBlazor.Models;
-@	using InteractiveTyingGameBlazor.Utils;
-@	using InteractiveTyingGameBlazor.Models;
-@	using System.Collections.ObjectModel;
-@	using InteractiveTyingGameBlazor.Data.Services;
-@	using Microsoft.AspNetCore.Authorization;
-@	using Syncfusion.Blazor.Navigations;
-
-@	using InteractiveTyingGameBlazor.Components.Pages.Charts;
-	using InteractiveTyingGameBlazor.DbModels;
+@using InteractiveTyingGameBlazor.Components.Pages.Modals
+@using Syncfusion.Blazor.Grids;
+@using Syncfusion.Blazor.DropDowns;
+@using Syncfusion.Blazor.Buttons;
+@using InteractiveTyingGameBlazor.Models;
+@using InteractiveTyingGameBlazor.Utils;
+@using System.Collections.ObjectModel;
+@using InteractiveTyingGameBlazor.Data.Services;
+@using Microsoft.AspNetCore.Authorization;  
+@using Syncfusion.Blazor.Navigations;
+@using InteractiveTyingGameBlazor.Components.Pages.Charts;
+@using InteractiveTyingGameBlazor.DbModels;
 @inject RegisteredVideosService _data;
 @inject IJSRuntime JSRuntime
 @inherits Common;

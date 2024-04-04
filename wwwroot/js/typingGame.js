@@ -11,7 +11,6 @@
     document.getElementById('textInputWrapper').addEventListener('click', () => {
         setCursorToStart();
     })
-
     player.on('click',async (event) => {
         if (!player.currentSrc() || player.currentSrc() === "") {
             event.preventDefault();

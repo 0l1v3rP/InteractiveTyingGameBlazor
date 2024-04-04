@@ -4,13 +4,14 @@ using InteractiveTyingGameBlazor.Components.Account;
 using InteractiveTyingGameBlazor.Data;
 using InteractiveTyingGameBlazor.Data.Services;
 using InteractiveTyingGameBlazor.GameManagement;
+using InteractiveTyingGameBlazor.Hubs;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Syncfusion.Blazor;
 
 var builder = WebApplication.CreateBuilder(args);
-// Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
@@ -22,6 +23,8 @@ builder.Services.AddScoped<TypingResultService>();
 builder.Services.AddScoped<RegisteredVideosService>();
 builder.Services.AddSingleton<MatchmakingService>();
 builder.Services.AddSingleton<PublicChatService>();
+builder.Services.AddSingleton<CookieStorage>();
+builder.Services.AddSingleton<ConnectionService>();
 
 builder.Services.AddAuthentication(options =>
     {
@@ -36,6 +39,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
+builder.Services.AddSignalR();
+
 builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = false)
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -43,9 +48,14 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
     .AddDefaultTokenProviders();
 
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
-builder.Services.AddSignalR();
 builder.Services.AddSyncfusionBlazor();
 builder.Services.AddApplicationInsightsTelemetry(builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]);
+
+builder.Services.AddResponseCompression(opts =>
+{
+    opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
+          new[] { "application/octet-stream" });
+});
 
 //syncfusion licensing
 Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(builder.Configuration["SYNCFUSION_LICENSE_KEY"]);
@@ -64,22 +74,17 @@ try
         // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
         app.UseHsts();
     }
+    app.UseResponseCompression();
 
     app.UseHttpsRedirection();
 
     app.UseStaticFiles();
     app.UseAntiforgery();
 
-
-    //app.MapBlazorHub();
-    //app.MapHub<ChatHub>("/chathub");
-    
-
     app.MapRazorComponents<App>()
         .AddInteractiveServerRenderMode();
-
-    // Add additional endpoints required by the Identity /Account Razor components.
     app.MapAdditionalIdentityEndpoints();
+    app.MapHub<ChatHub>("/chathub");
 
     using (var scope = app.Services.CreateScope())
     {
