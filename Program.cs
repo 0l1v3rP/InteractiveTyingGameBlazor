@@ -1,16 +1,23 @@
+using InteractiveTyingGameBlazor.Api;
 using InteractiveTyingGameBlazor.Chat;
 using InteractiveTyingGameBlazor.Components;
 using InteractiveTyingGameBlazor.Components.Account;
 using InteractiveTyingGameBlazor.Data;
 using InteractiveTyingGameBlazor.Data.Services;
+using InteractiveTyingGameBlazor.DbModels;
 using InteractiveTyingGameBlazor.GameManagement;
 using InteractiveTyingGameBlazor.Hubs;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.OData;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Sqlite;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.OData.Edm;
+using Microsoft.OData.ModelBuilder;
 using Syncfusion.Blazor;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
@@ -35,26 +42,6 @@ builder.Services.AddAuthentication(options =>
     })
     .AddIdentityCookies();
 
-//var connectionString = builder.Configuration.GetConnectionString("AZURE_SQL_CONNECTIONSTRING") ?? throw new InvalidOperationException("Connection string 'AZURE_SQL_CONNECTIONSTRING' not found.");
-//builder.Services.AddDbContext<ApplicationDbContext>(options =>
-//    options.UseSqlServer(connectionString));
-
-
-//var connectionString = builder.Configuration.GetConnectionString("SQLITE_CONNECTION")
-//    ?? throw new InvalidOperationException("Connection string 'SQLITE_CONNECTION' not found.");
-//builder.Services.AddDbContext<ApplicationDbContext>(options =>
-//    options.UseSqlite("Data Source=C:\\home\\site\\wwwroot\\database.db"));
-
-//var environment = webBuilder.Environment;
-//var contentRootPath = environment.ContentRootPath;
-
-//var databasePath = Path.Combine(contentRootPath, "Database", "database.db");
-//var connectionString = $"Data Source={databasePath}";
-
-//builder.Services.AddDbContext<ApplicationDbContext>(options =>
-//    options.UseSqlite(connectionString));
-
-
 var connectionString = builder.Configuration.GetConnectionString("SQLITE_CONNECTION")
     ?? throw new InvalidOperationException("Connection string 'SQLITE_CONNECTION' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -73,6 +60,16 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 builder.Services.AddSyncfusionBlazor();
 builder.Services.AddApplicationInsightsTelemetry(builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]);
+
+builder.Services.AddControllers()
+    .AddOData(options => options
+        .AddRouteComponents("odata", Edm.Get())
+        .Select()
+        .Filter()
+        .OrderBy()
+        .Count()
+        .Expand()
+    ); 
 
 builder.Services.AddResponseCompression(opts =>
 {
@@ -115,7 +112,9 @@ try
 
     app.MapRazorComponents<App>()
         .AddInteractiveServerRenderMode();
+    app.MapControllers();
     app.MapAdditionalIdentityEndpoints();
+
     app.MapHub<ChatHub>("/chathub");
 	using (var scope = app.Services.CreateScope())
     {
@@ -161,3 +160,4 @@ catch (Exception ex)
     logger.LogError(ex, "An unhandled exception has ocured");
     throw;
 }
+
