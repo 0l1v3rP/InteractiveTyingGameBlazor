@@ -3,11 +3,11 @@ using System.ComponentModel.DataAnnotations;
 
 namespace InteractiveTyingGameBlazor.Models
 {
-    public class VideoOverview(RegisteredVideo registeredVideo) 
+    public class VideoOverview(RegisteredVideo registeredVideo, int cpmAverage) 
     {
         public int Counter { get; set; } = registeredVideo.Counter;
 
-        public int CPMAverage { get; set; } = 0;
+        public int CPMAverage { get; set; } = cpmAverage;
 
         public string AddedBy { get; set; } = registeredVideo.User.UserName ?? "Anonymous";
 

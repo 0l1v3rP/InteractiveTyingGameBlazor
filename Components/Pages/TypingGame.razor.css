@@ -68,3 +68,12 @@
     align-items: center;
     cursor: pointer;
 }
+
+.fig-caption {
+    position: absolute;
+    top: 25%;
+    right: 35%;
+    color: blueviolet;
+    font-size: 100px;
+    pointer-events:none;
+}

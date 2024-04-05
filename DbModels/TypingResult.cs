@@ -7,11 +7,13 @@ namespace InteractiveTyingGameBlazor.DbModels
 {
     public class TypingResult : BaseEntity
     {
-        [ForeignKey("ApplicationUser")]
         [AllowNull]
         public string? UserId { get; set; } = null;
 
-        [AllowNull]
+		[Required]
+		public Guid VideoId { get; set; }
+
+		[AllowNull]
         public string? SessionId { get; set; } = null;
 
         [Required]
@@ -23,10 +25,11 @@ namespace InteractiveTyingGameBlazor.DbModels
         [Required]
         public DateTime Date { get; set; }
 
-        [Required]
-        public string VideoId { get; set; }
-
-        public ApplicationUser? User { get; set; }
+		[ForeignKey("UserId")]
+		public virtual ApplicationUser? User { get; set; }
+		
+        [ForeignKey("VideoId")]
+		public virtual RegisteredVideo Video { get; set; }  
 
         public string Chars { get; set; }
     }

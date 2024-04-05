@@ -7,6 +7,7 @@
 @using System.Net;
 @using InteractiveTyingGameBlazor.Chat
 @using Microsoft.AspNetCore.Authorization;
+@using InteractiveTyingGameBlazor.Data.Services;
 
 @inherits Common
 @inject UserManager<ApplicationUser> _userManager
@@ -14,124 +15,126 @@
 @inject CookieStorage _cookieStorage
 @inject IJSRuntime JSRuntime;
 @inject ConnectionService _connections;
+@inject MessageService _data
 @implements IAsyncDisposable
 @attribute [Authorize]
 
 <div>
-    <SfDropDownList TValue="string" TItem="ApplicationUser" Placeholder="Select a user" AllowFiltering="true" DataSource="@users" Width="300px">
-        <DropDownListFieldSettings Text="UserName" Value="UserName"></DropDownListFieldSettings>
-        <DropDownListEvents TValue="string" TItem="ApplicationUser" ValueChange="@SelectUser"></DropDownListEvents>
-    </SfDropDownList>
+	<SfDropDownList TValue="ApplicationUser" TItem="ApplicationUser" Placeholder="Select a user" AllowFiltering="true" DataSource="@users" Width="300px">
+		<DropDownListFieldSettings Text="UserName" Value="UserName"></DropDownListFieldSettings>
+		<DropDownListEvents TValue="ApplicationUser" TItem="ApplicationUser" ValueChange="@SelectUser"></DropDownListEvents>
+	</SfDropDownList>
 
-    <input type="text" @bind="message" />
-    <button @onclick="() => SendMessage()">Send</button>
+	<input type="text" @bind="message" />
+	<button @onclick="() => SendMessage()">Send</button>
 
-    @foreach (var msg in messages)
-    {
-        <div>@msg</div>
-    }
+	@foreach (var msg in messages)
+	{
+		<div>@msg</div>
+	}
 </div>
 
 @code {
-    [CascadingParameter(Name = "Cookies")]
-    public Dictionary<string, string> Cookies { get; set; }
-    private HubConnection hubConnection;
-    private List<ApplicationUser> users = [];
-    private List<string> messages = [];
-    private string selectedUserId = String.Empty;
-    private string message = String.Empty;
+	[CascadingParameter(Name = "Cookies")]
+	public Dictionary<string, string> Cookies { get; set; }
+	private HubConnection hubConnection;
+	private List<ApplicationUser> users = [];
+	private List<string> messages = [];
+	private ApplicationUser selectedUser;
+	private string message = String.Empty;
 
-    private void InitializeCookies()
-    {
-        if (Cookies is not null)
-            _cookieStorage.Add(userID, Cookies);
-        else
-            Cookies = _cookieStorage.GetUserCookies(userID);
-    }
+	private void InitializeCookies()
+	{
+		if (Cookies is not null)
+			_cookieStorage.Add(userID, Cookies);
+		else
+			Cookies = _cookieStorage.GetUserCookies(userID);
+	}
 
-    private async Task InitializeHub()
-    {
-        hubConnection.On<string>("ReceiveMessage", async (message) =>
-        {
-            messages.Add(message);
-            await InvokeAsync(StateHasChanged);
-        });
-        await hubConnection.StartAsync();
-    }
+	private async Task InitializeHub()
+	{
+		hubConnection.On<string>("ReceiveMessage", async (message) =>
+		{
+			messages.Add(message);
+			await InvokeAsync(StateHasChanged);
+		});
+		await hubConnection.StartAsync();
+	}
 
-    protected override async Task OnInitializedAsync()
-    {
-        await base.OnInitializedAsync();
-        InitializeCookies();
-        hubConnection = new HubConnectionBuilder()
-        .WithUrl(_navigation.ToAbsoluteUri("/chathub"), options =>
-        {
-            options.UseDefaultCredentials = true;
-            var cookieCount = Cookies.Count();
-            var cookieContainer = new CookieContainer(cookieCount);
-            foreach (var cookie in Cookies)
-                cookieContainer.Add(new Cookie(
-                    cookie.Key,
-                    WebUtility.UrlEncode(cookie.Value),
-                    path: "/",
-                    domain: _navigation.ToAbsoluteUri("/").Host));
-            options.Cookies = cookieContainer;
+	protected override async Task OnInitializedAsync()
+	{
+		await base.OnInitializedAsync();
+		InitializeCookies();
+		hubConnection = new HubConnectionBuilder()
+		.WithUrl(_navigation.ToAbsoluteUri("/chathub"), options =>
+		{
+			options.UseDefaultCredentials = true;
+			var cookieCount = Cookies.Count();
+			var cookieContainer = new CookieContainer(cookieCount);
+			foreach (var cookie in Cookies)
+				cookieContainer.Add(new Cookie(
+					cookie.Key,
+					WebUtility.UrlEncode(cookie.Value),
+					path: "/",
+					domain: _navigation.ToAbsoluteUri("/").Host));
+			options.Cookies = cookieContainer;
 
-            foreach (var header in Cookies)
-                options.Headers.Add(header.Key, header.Value);
+			foreach (var header in Cookies)
+				options.Headers.Add(header.Key, header.Value);
 
-            options.HttpMessageHandlerFactory = (input) =>
-            {
-                var clientHandler = new HttpClientHandler
-                    {
-                        PreAuthenticate = true,
-                        CookieContainer = cookieContainer,
-                        UseCookies = true,
-                        UseDefaultCredentials = true,
-                    };
-                return clientHandler;
-            };
-        })
-        .WithAutomaticReconnect()
-        .Build();
+			options.HttpMessageHandlerFactory = (input) =>
+			{
+				var clientHandler = new HttpClientHandler
+					{
+						PreAuthenticate = true,
+						CookieContainer = cookieContainer,
+						UseCookies = true,
+						UseDefaultCredentials = true,
+					};
+				return clientHandler;
+			};
+		})
+		.WithAutomaticReconnect()
+		.Build();
 
-        await InitializeHub();
-        users = _userManager.Users.ToList();
-    }
+		await InitializeHub();
+		users = _userManager.Users.ToList();
+	}
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        await base.OnAfterRenderAsync(firstRender);
-        if (firstRender)
-        {
-            var dotNetRef = DotNetObjectReference.Create(this);
-            await JSRuntime.InvokeVoidAsync("disposeInterop", dotNetRef);
-        }
-    }
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		await base.OnAfterRenderAsync(firstRender);
+		if (firstRender)
+		{
+			var dotNetRef = DotNetObjectReference.Create(this);
+			await JSRuntime.InvokeVoidAsync("disposeInterop", dotNetRef);
+		}
+	}
 
-    private void SelectUser(ChangeEventArgs<string, ApplicationUser> args)
-    {
-        selectedUserId = args.Value;
-    }
+	private void SelectUser(ChangeEventArgs<ApplicationUser, ApplicationUser> args)
+	{
+		selectedUser = args.Value;
+	}
 
-    private async Task SendMessage()
-    {
-        if (!string.IsNullOrWhiteSpace(message))
-        {
-            await hubConnection.InvokeAsync("SendMessage", userName, selectedUserId, message);
-            this.message = string.Empty;
-        }
-    }
+	private async Task SendMessage()
+	{
+		if (!string.IsNullOrWhiteSpace(message))
+		{
+			await hubConnection.InvokeAsync("SendMessage", userName, selectedUser.UserName, message);
+			// _data.Add();
+			this.message = string.Empty;
+		}
+	}
 
-    public async ValueTask DisposeAsync()
-    {
-        if (hubConnection is not null)
-        {
-            await hubConnection.StopAsync();
-            await hubConnection.DisposeAsync();
+	public async ValueTask DisposeAsync()
+	{
+		if (hubConnection is not null)
+		{
+			await hubConnection.StopAsync();
+			await hubConnection.DisposeAsync();
 
-            if (_connections.AnyUserConnection(userID))
-                _cookieStorage.Remove(userID);
-        }
-    }
+			if (_connections.AnyUserConnection(userID))
+				_cookieStorage.Remove(userID);
+		}
+	}
 }

@@ -29,10 +29,7 @@
     </SfGrid>
 </div>
 
-@* @if  (!userID.StartsWith("Anonymous")) *@
-@* { *@
-    <ChatComponent></ChatComponent>
-@* } *@
+<ChatComponent></ChatComponent>
 
 @code {
     private IEnumerable<VideoOverview> videos;
@@ -43,7 +40,7 @@
     {
         base.OnInitialized();
         videos = _videoData.Read<RegisteredVideo>(i => i.
-            Include(i => i.User).Where(i => i.IsGlobal)).Select(i => new VideoOverview(i));
+            Include(i => i.User).Where(i => i.IsGlobal)).Select(i => new VideoOverview(i, _videoData.GetAverageCPM(i.Id)));
     }
 
     protected override async Task OnInitializedAsync()

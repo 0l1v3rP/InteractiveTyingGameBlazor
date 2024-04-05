@@ -22,7 +22,7 @@
     <script src="js/disposeInterop.js"></script>
     <script src="_content/Syncfusion.Blazor.Core/scripts/syncfusion-blazor.min.js" type="text/javascript"></script>
 
-     @inject IHttpContextAccessor HttpContextAccessor
+    @inject IHttpContextAccessor HttpContextAccessor
     @{
         var CookieCollection = HttpContextAccessor.HttpContext.Request.Cookies;
         Dictionary<string, string> Cookies = new Dictionary<string, string>();
@@ -31,7 +31,7 @@
             Cookies.Add(cookie.Key, cookie.Value);
         }
     }
-    <Routes  Cookies="Cookies" />
+    <Routes  Cookies="Cookies"/>
 </body>
 
 </html>

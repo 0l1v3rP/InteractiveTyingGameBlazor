@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Components.Authorization;
 using InteractiveTyingGameBlazor.Extensions;
 using AngleSharp.Dom;
 using InteractiveTyingGameBlazor.DbModels;
+using Microsoft.Identity.Client;
+using Microsoft.EntityFrameworkCore;
 
 namespace InteractiveTyingGameBlazor.Data.Services
 {
@@ -14,6 +16,11 @@ namespace InteractiveTyingGameBlazor.Data.Services
             return _dbContext.RegisteredVideos.Where(i => i.UserId == userId);
 		}
 
+        public int GetAverageCPM(Guid videoId)
+        {
+            var results = _dbContext.TypingResults.Where(result => result.VideoId == videoId);
+            return results.Any() ? (int)results.Average(result => result.CPM) : 0;
+        }
         public async Task<IEnumerable<RegisteredVideo>> GetAvailableVideos()
         {
             var userId = await _auth.GetUserIdAsync();

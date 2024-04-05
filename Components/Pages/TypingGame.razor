@@ -27,8 +27,17 @@
 
 <div class="game-container" style="@(EnablePointerEvents(spinnerVisiblity))">
     <div id="video-container">
-        <video id="my-video" class="video-js" controls preload="auto" width="860" height="355">
-        </video>
+        @if (playTextVisible)
+        {
+            <figure>
+                <video id="my-video" class="video-js" controls preload="auto" width="860" height="355"></video>
+                <figcaption class="fig-caption">PLAY!</figcaption>
+            </figure>
+        }
+        else
+        {
+            <video id="my-video" class="video-js" controls preload="auto" width="860" height="355"></video>
+        }
     </div>
     <div class="stats-container">
         @{
@@ -89,6 +98,7 @@
     private GameConfig config;
     public bool IsVideoModalOpen { get; set; } = false;
     public bool IsResultModalOpen { get; set; } = false;
+    public bool playTextVisible = true;
 
     public int GetCPM() => Session?.PlayerGameStates[userID].CPM ?? 0;
 
@@ -125,7 +135,7 @@
             CPM = Session.PlayerGameStates[userID].CPM,
             Accuracy = Session.PlayerGameStates[userID].Accuracy,
             Date = DateTime.UtcNow,
-            VideoId = config.URL,
+            VideoId = config.VideoId,
             UserId = userID.StartsWith("Anonymous") ? null : userID,
             Chars = JsonSerializer.Serialize(Chars)
         };
@@ -142,6 +152,7 @@
 
     private async Task ConfigureGame()
     {
+        playTextVisible = false;
         IsVideoModalOpen = false;
         Session = _matchmaking.GetSession(userID);
         config = Session.Config;
@@ -195,11 +206,11 @@
         seconds--;
         time = $"{(seconds / 60).ToString("D2")}:{(seconds % 60).ToString("D2")}";
 
-        await InvokeAsync(StateHasChanged);
         if (seconds == 0)
         {
             await EndGame();
         }
+        await InvokeAsync(StateHasChanged);
     }
 
     #region jsInvokable
@@ -263,7 +274,8 @@
         timer.Dispose();
         timer = null;
         // canPlay = false;
-        await JSRuntime.InvokeVoidAsync("endGame");
+        playTextVisible = true;
+                await JSRuntime.InvokeVoidAsync("endGame");
         AfterSubmit();
         Session.OnMatchFinished += async () =>
         {

@@ -8,10 +8,9 @@ namespace InteractiveTyingGameBlazor.DbModels
     public class Message : BaseEntity
     {
         [Required]
-
         public string SenderId { get; set; }
+        
         [Required]
-
         public string RecipentId { get; set; }
         [Required]
 

@@ -7,7 +7,7 @@ using InteractiveTyingGameBlazor.Chat;
 namespace InteractiveTyingGameBlazor.Hubs
 {
     [Authorize]
-    public class ChatHub(ConnectionService connectionService, ) : Hub
+    public class ChatHub(ConnectionService connectionService) : Hub
     {
         private readonly ConnectionService _connectionService = connectionService;
 
