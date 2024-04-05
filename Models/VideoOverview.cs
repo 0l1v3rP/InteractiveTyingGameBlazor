@@ -14,5 +14,8 @@ namespace InteractiveTyingGameBlazor.Models
         public string VideoName { get; set; } = registeredVideo.Title;
 
         public Guid VideoId { get; set; } = registeredVideo.Id;
+        
+        public int PressedChars { get; set; } = registeredVideo.PressedChars;
+
     }
 }

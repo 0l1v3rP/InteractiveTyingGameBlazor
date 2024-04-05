@@ -9,44 +9,50 @@
 @using System.ComponentModel.DataAnnotations
 @using Microsoft.AspNetCore.Identity
 @using InteractiveTyingGameBlazor.Data
+@using InteractiveTyingGameBlazor.Models
 
+@inject TypingResultService _result
 @inject UserManager<ApplicationUser> _userManager
 @inherits Common
 @attribute [Authorize(Roles = "Admin")]
 
 <div class="grid-container">
-    <SfGrid Width="600" DataSource="@users" Toolbar=@(new List<string>() { "Delete"}) AllowSelection="true" >
+    <SfGrid DataSource="@users" Toolbar=@(new List<string>() { "Delete"}) AllowSelection="true" >
         <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Single"></GridSelectionSettings>
         <GridEditSettings  AllowDeleting="true" ></GridEditSettings>
-        <GridEvents  OnActionBegin="@ActionBeginHandler" TValue="@ApplicationUser"></GridEvents>
+        <GridEvents OnActionBegin="@ActionBeginHandler" TValue="@UserView"></GridEvents>
         <GridColumns>
-            <GridColumn Field=@nameof(ApplicationUser.Email) IsPrimaryKey="true" TextAlign="@TextAlign.Center"></GridColumn>
+            <GridColumn Field=@nameof(UserView.Email) IsPrimaryKey="true" TextAlign="@TextAlign.Center"></GridColumn>
+            <GridColumn Field=@nameof(UserView.UserName) HeaderText="User Name" TextAlign="@TextAlign.Center"></GridColumn>
+            <GridColumn Field=@nameof(UserView.LastGame) HeaderText="Last Game" TextAlign="@TextAlign.Center"></GridColumn>
+            <GridColumn Field=@nameof(UserView.TotalPlayed) HeaderText="Games Played" TextAlign="@TextAlign.Center"></GridColumn>
         </GridColumns>
     </SfGrid> 
 </div>
 
 @code {
-    private IEnumerable<ApplicationUser> users;
+    private IEnumerable<UserView> users;
 
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
         var admins = await _userManager.GetUsersInRoleAsync("Admin");
         var allUsers = _userManager.Users.ToList(); 
-        users = allUsers.Except(admins).ToList();
+        users = allUsers.Except(admins).Select(user => 
+            new UserView(user.UserName, user.Email, _result.GetUserLastGameDate(user.Id), _result.TotalPlayedGames(user.Id))).ToList();
     }
 
-    public async Task ActionBeginHandler(ActionEventArgs<ApplicationUser> args)
+    public async Task ActionBeginHandler(ActionEventArgs<UserView> args)
     {
         if (args.RequestType.Equals(Syncfusion.Blazor.Grids.Action.Delete))
         {
-            var user = args.Data;
+            var user = _userManager.Users.Where(user => user.Email == args.Data.Email).FirstOrDefault();
             if (user != null)
             {
                 var result = await _userManager.DeleteAsync(user);
                 if (result.Succeeded)
                 {
-                    users = users.Where(u => u.Id != user.Id).ToList();
+                    users = users.Where(u => u.Email != user.Email).ToList();
                     StateHasChanged();
                 }
             }

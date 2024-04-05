@@ -34,5 +34,9 @@ namespace InteractiveTyingGameBlazor.DbModels
 
 		[ForeignKey("UserId")]
 		public virtual ApplicationUser User { get; set; }
+
+        public int PressedChars { get; set; } = 0;
+
+        public int CorrectChars { get; set; } = 0;
     }
 }

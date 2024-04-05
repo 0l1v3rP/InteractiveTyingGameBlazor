@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Components.Authorization;
 using InteractiveTyingGameBlazor.Extensions;
 using AngleSharp.Dom;
 using InteractiveTyingGameBlazor.DbModels;
-using Microsoft.Identity.Client;
 using Microsoft.EntityFrameworkCore;
 
 namespace InteractiveTyingGameBlazor.Data.Services
@@ -16,6 +15,15 @@ namespace InteractiveTyingGameBlazor.Data.Services
             return _dbContext.RegisteredVideos.Where(i => i.UserId == userId);
 		}
 
+        public void UpdatePressedChars(Guid videoId, int correctChars, int pressedChars)
+        {
+            _dbContext.RegisteredVideos
+            .Where(v => v.Id == videoId)
+            .ExecuteUpdate(v =>
+                v.SetProperty(v => v.CorrectChars, v => v.CorrectChars + correctChars)
+                .SetProperty(v => v.PressedChars,v =>  v.PressedChars + pressedChars)
+            );
+        }
         public int GetAverageCPM(Guid videoId)
         {
             var results = _dbContext.TypingResults.Where(result => result.VideoId == videoId);
@@ -43,10 +51,10 @@ namespace InteractiveTyingGameBlazor.Data.Services
 
             var entity = _dbContext.RegisteredVideos.FirstOrDefault(i => i.Id == overView.VideoId);
             bool entityExists = entity is not null;
+
             if (entityExists)
-            {
                 Delete(entity);
-            }
+
             return entityExists;
         }
     }

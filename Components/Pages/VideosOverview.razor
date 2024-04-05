@@ -22,9 +22,10 @@
         <GridColumns>
             <GridColumn Field=@nameof(VideoOverview.VideoId) IsPrimaryKey="true" Visible="false" TextAlign="@TextAlign.Center"></GridColumn>
             <GridColumn Field=@nameof(VideoOverview.VideoName) TextAlign="@TextAlign.Center"></GridColumn>
-            <GridColumn Field=@nameof(VideoOverview.AddedBy) TextAlign="@TextAlign.Center"></GridColumn>
-            <GridColumn Field=@nameof(VideoOverview.CPMAverage) TextAlign="@TextAlign.Center"></GridColumn>
+            <GridColumn Field=@nameof(VideoOverview.AddedBy) HeaderText="Added By" TextAlign="@TextAlign.Center"></GridColumn>
+            <GridColumn Field=@nameof(VideoOverview.CPMAverage) HeaderText="Average CPM" TextAlign="@TextAlign.Center"></GridColumn>
             <GridColumn Field=@nameof(VideoOverview.Counter) TextAlign="@TextAlign.Center"></GridColumn>
+            <GridColumn Field=@nameof(VideoOverview.PressedChars) TextAlign="@TextAlign.Center"></GridColumn>
         </GridColumns>
     </SfGrid>
 </div>

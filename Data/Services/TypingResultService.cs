@@ -17,6 +17,17 @@ namespace InteractiveTyingGameBlazor.Data.Services
                             (int)g.Average(r => r.CPM)));
         }
 
+        public DateOnly? GetUserLastGameDate(string userId)
+        {
+            var date = _dbContext.TypingResults.Where(result => result.UserId == userId)?
+                .OrderByDescending(result => result.Date)?.FirstOrDefault()?.Date;
+            return date is null ? null : DateOnly.FromDateTime(date.Value);
+
+        }
+
+        public int TotalPlayedGames(string userId)
+           => _dbContext.TypingResults.Where(result => result.UserId == userId)?.Count() ?? 0;
+
         public IEnumerable<ChartModel<int,int>> GetAverageCPM()
         {
             return _dbContext.TypingResults
