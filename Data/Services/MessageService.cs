@@ -11,6 +11,5 @@ namespace InteractiveTyingGameBlazor.Data.Services
             => _dbContext.Messages.Where(message => (message.SenderId == userId &&
                     message.RecipentId == recipientId) || (message.RecipentId == userId &&
                     message.SenderId == recipientId)).OrderBy(message => message.Timestamp);
-        
     }
 }

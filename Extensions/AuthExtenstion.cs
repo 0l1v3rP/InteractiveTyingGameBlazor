@@ -5,11 +5,8 @@ namespace InteractiveTyingGameBlazor.Extensions
 {
     public static class AuthExtensions
     {
-        public static async Task<string?> GetUserIdAsync(this AuthenticationStateProvider provider)
-        {
-            var authState = await provider.GetAuthenticationStateAsync();
-            var user = authState.User;
-            return user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        }
+        public static async Task<string?> GetUserIdAsync(this AuthenticationStateProvider provider)        
+            => (await provider.GetAuthenticationStateAsync())
+                .User.FindFirst(ClaimTypes.NameIdentifier)?.Value;  
     }
 }

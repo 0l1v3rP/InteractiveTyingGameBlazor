@@ -15,7 +15,7 @@ namespace InteractiveTyingGameBlazor.Data.Services
             return _dbContext.RegisteredVideos.Where(i => i.UserId == userId);
 		}
 
-        public void UpdatePressedChars(Guid videoId, int correctChars, int pressedChars)
+        public void UpdatePressedChars(string videoId, int correctChars, int pressedChars)
         {
             _dbContext.RegisteredVideos
             .Where(v => v.Id == videoId)
@@ -24,7 +24,7 @@ namespace InteractiveTyingGameBlazor.Data.Services
                 .SetProperty(v => v.PressedChars,v =>  v.PressedChars + pressedChars)
             );
         }
-        public int GetAverageCPM(Guid videoId)
+        public int GetAverageCPM(string videoId)
         {
             var results = _dbContext.TypingResults.Where(result => result.VideoId == videoId);
             return results.Any() ? (int)results.Average(result => result.CPM) : 0;
@@ -35,7 +35,7 @@ namespace InteractiveTyingGameBlazor.Data.Services
             return _dbContext.RegisteredVideos.Where(i => i.UserId == userId || i.IsGlobal);
         }
 
-        public void IncreaseCounter(Guid videoId)
+        public void IncreaseCounter(string videoId)
         {
             var video = _dbContext.Set<RegisteredVideo>().Find(videoId);
             if (video != null)

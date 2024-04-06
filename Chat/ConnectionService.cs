@@ -5,7 +5,6 @@ namespace InteractiveTyingGameBlazor.Chat
     public class ConnectionService
     {
         private readonly Dictionary<string, HashSet<string>> groupConnections = [];
-
         public void AddConnection(string user, string connectionId)
         {
             lock (groupConnections)

@@ -2,9 +2,13 @@
 
 namespace InteractiveTyingGameBlazor.DbModels
 {
-    public class BaseEntity
+    public interface IEntityWithId
+    {
+        string Id { get; set; }
+    }
+    public class BaseEntity : IEntityWithId
     {
         [Key]
-        public Guid Id { get; set; } = Guid.NewGuid();
+        public string Id { get; set; } = Guid.NewGuid().ToString();
     }
 }

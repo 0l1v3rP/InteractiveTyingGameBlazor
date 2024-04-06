@@ -83,8 +83,7 @@ namespace InteractiveTyingGameBlazor.Migrations
 
             modelBuilder.Entity("InteractiveTyingGameBlazor.DbModels.Message", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<string>("Id")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Content")
@@ -113,8 +112,7 @@ namespace InteractiveTyingGameBlazor.Migrations
 
             modelBuilder.Entity("InteractiveTyingGameBlazor.DbModels.RegisteredVideo", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<string>("Id")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Category")
@@ -158,8 +156,7 @@ namespace InteractiveTyingGameBlazor.Migrations
 
             modelBuilder.Entity("InteractiveTyingGameBlazor.DbModels.TypingResult", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<string>("Id")
                         .HasColumnType("TEXT");
 
                     b.Property<float>("Accuracy")
@@ -181,7 +178,8 @@ namespace InteractiveTyingGameBlazor.Migrations
                     b.Property<string>("UserId")
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("VideoId")
+                    b.Property<string>("VideoId")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");

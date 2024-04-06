@@ -160,10 +160,10 @@
             joinCallback = JoinCallback;
         }
         GameConfig config = new(selectedVideo.URL, time, captions, selectedVideo.Title, selectedVideo.Id);
-        Guid? sessionId = _matchMaking.TryCreateSession(UserId, playersNum, config);
+        string? sessionId = _matchMaking.TryCreateSession(UserId, playersNum, config);
         if (sessionId is not null)
         {
-            _matchMaking.JoinMatch(sessionId.Value, UserId, joinCallback);
+            _matchMaking.JoinMatch(sessionId, UserId, joinCallback);
             if (joinCallback is null) await OnJoin();
             else await OpenWaitingRoom.InvokeAsync();
         }

@@ -13,7 +13,7 @@ namespace InteractiveTyingGameBlazor.DbModels
         public string? UserId { get; set; } = null;
 
 		[Required]
-		public Guid VideoId { get; set; }
+		public string VideoId { get; set; }
 
 		[AllowNull]
         public string? SessionId { get; set; } = null;

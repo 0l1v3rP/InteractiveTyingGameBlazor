@@ -63,7 +63,7 @@ builder.Services.AddApplicationInsightsTelemetry(builder.Configuration["APPLICAT
 
 builder.Services.AddControllers()
     .AddOData(options => options
-        .AddRouteComponents("odata", Edm.Get())
+        .AddRouteComponents("api", Edm.Get())
         .Select()
         .Filter()
         .OrderBy()

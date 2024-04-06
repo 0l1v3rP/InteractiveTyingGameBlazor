@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace InteractiveTyingGameBlazor.Api
 {
-    public class GenericController<T>(ApplicationDbContext context) : ODataController where T : BaseEntity
+    public class GenericController<T>(ApplicationDbContext context) : ODataController where T : class, IEntityWithId
     {
         protected readonly DbSet<T> _dbSet = context.Set<T>();
 
@@ -19,11 +19,7 @@ namespace InteractiveTyingGameBlazor.Api
             => _dbSet;
      
         [EnableQuery]
-        public SingleResult<T> Get([FromODataUri] Guid key)
-        {
-            var result = _dbSet.Where(e => e.Id == key);
-            return SingleResult.Create(result);
-        }
-        
+        public SingleResult<T> Get([FromODataUri] string key)
+            => SingleResult.Create(_dbSet.Where(e => e.Id == key));
     }
 }
