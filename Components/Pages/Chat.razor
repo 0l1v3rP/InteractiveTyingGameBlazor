@@ -112,9 +112,7 @@
 	}
 
 	private void SelectUser(ChangeEventArgs<ApplicationUser, ApplicationUser> args)
-	{
-		selectedUser = args.Value;
-	}
+		=> selectedUser = args.Value;
 
 	private async Task SendMessage()
 	{

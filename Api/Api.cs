@@ -3,6 +3,7 @@ using InteractiveTyingGameBlazor.Data;
 using InteractiveTyingGameBlazor.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Formatter;
+using Microsoft.AspNetCore.Authorization;
 
 namespace InteractiveTyingGameBlazor.Api
 {

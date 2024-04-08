@@ -1,6 +1,6 @@
 ﻿.game-container {
     position: relative;
-    width: 860px;
+    max-width: 860px;
     margin: 0 auto;
 }
 
@@ -9,7 +9,7 @@
     padding: 10px;
     border-radius: 5px;
     margin-top: 10px;
-    width: 860px;
+    max-width: 860px;
 }
 
 .stats-item {
@@ -40,7 +40,6 @@
     overflow: hidden;
     white-space: nowrap;
 }
-
 
 .rightTextInput {
     border-style: solid solid solid none;

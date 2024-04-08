@@ -4,7 +4,6 @@ using InteractiveTyingGameBlazor.Components;
 using InteractiveTyingGameBlazor.Components.Account;
 using InteractiveTyingGameBlazor.Data;
 using InteractiveTyingGameBlazor.Data.Services;
-using InteractiveTyingGameBlazor.DbModels;
 using InteractiveTyingGameBlazor.GameManagement;
 using InteractiveTyingGameBlazor.Hubs;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -12,12 +11,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.OData;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Sqlite;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.OData.Edm;
-using Microsoft.OData.ModelBuilder;
 using Syncfusion.Blazor;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
@@ -85,7 +79,6 @@ logger.LogError(builder.Environment.ContentRootPath);
 
 try
 {
-
 	using (var scope = app.Services.CreateScope())
 	{
 		var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();

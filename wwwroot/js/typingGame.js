@@ -205,4 +205,5 @@ function normalizeSubtitle(subtitle) {
         .replace(/„/g, '"')
         .replace(/“/g, '"')
         .replace(/\n/g, ' ')
+        .replace(/♪/g, '')
 }

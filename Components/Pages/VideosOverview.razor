@@ -16,7 +16,7 @@
 @inherits Common
 
 <div class="grid-container">
-    <SfGrid DataSource="@videos" Toolbar="@toolbar">
+    <SfGrid Height="400" DataSource="@videos" Toolbar="@toolbar">
         <GridEditSettings AllowDeleting="@isAdmin"></GridEditSettings>
         <GridEvents  TValue="@VideoOverview"></GridEvents>
         <GridColumns>
@@ -24,8 +24,8 @@
             <GridColumn Field=@nameof(VideoOverview.VideoName) TextAlign="@TextAlign.Center"></GridColumn>
             <GridColumn Field=@nameof(VideoOverview.AddedBy) HeaderText="Added By" TextAlign="@TextAlign.Center"></GridColumn>
             <GridColumn Field=@nameof(VideoOverview.CPMAverage) HeaderText="Average CPM" TextAlign="@TextAlign.Center"></GridColumn>
-            <GridColumn Field=@nameof(VideoOverview.Counter) TextAlign="@TextAlign.Center"></GridColumn>
-            <GridColumn Field=@nameof(VideoOverview.PressedChars) TextAlign="@TextAlign.Center"></GridColumn>
+            <GridColumn Field=@nameof(VideoOverview.Counter) HeaderText="Play Count" TextAlign="@TextAlign.Center"></GridColumn>
+            <GridColumn Field=@nameof(VideoOverview.PressedChars) HeaderText="Pressed Characters" TextAlign="@TextAlign.Center"></GridColumn>
         </GridColumns>
     </SfGrid>
 </div>
@@ -41,7 +41,8 @@
     {
         base.OnInitialized();
         videos = _videoData.Read<RegisteredVideo>(i => i.
-            Include(i => i.User).Where(i => i.IsGlobal)).Select(i => new VideoOverview(i, _videoData.GetAverageCPM(i.Id)));
+            Include(i => i.User).Where(i => i.IsGlobal)).
+                Select(i => new VideoOverview(i, _videoData.GetAverageCPM(i.Id)));
     }
 
     protected override async Task OnInitializedAsync()

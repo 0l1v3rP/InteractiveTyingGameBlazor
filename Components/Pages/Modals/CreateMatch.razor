@@ -86,9 +86,7 @@
     private bool createMatch = false;
 
     private void ToggleNumberInput(ChangeEventArgs e)
-    {
-        createMatch = (bool)e.Value;
-    }
+        => createMatch = (bool)e.Value;
 
     private Random random = new Random();
     private List<RegisteredVideo> videosList = new List<RegisteredVideo>();

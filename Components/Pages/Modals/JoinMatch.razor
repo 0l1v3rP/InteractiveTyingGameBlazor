@@ -39,24 +39,22 @@ else
     private List<GameSession> sessions;
 
     protected override void OnInitialized()
-    {
-        sessions = _matchMaking.Sessions.Where(i => i.PlayerGameStates.Count < i.PlayersNum && !i.Started).ToList();
-    }
+        => sessions = _matchMaking.Sessions.Where(i =>
+            i.PlayerGameStates.Count < i.PlayersNum && !i.Started).ToList();
 
     private async Task JoinSession(GameSession session)
-    {
-        await InvokeAsync(async () =>
-        {
-            if(!_matchMaking.JoinMatch(session.Id, UserId, OnJoin))
-                await OpenWaitingRoom.InvokeAsync();
-        });
-    }
+        => await InvokeAsync(async () =>
+            {
+                if(!_matchMaking.JoinMatch(session.Id, UserId, OnJoin))
+                    await OpenWaitingRoom.InvokeAsync();
+            });
+    
 
-    private async Task OnJoin() {
-        await InvokeAsync(async () =>
-        {
-            await CloseWaitingRoom.InvokeAsync();
-            await ConfigureOptions.InvokeAsync();
-        });
-    }
+    private async Task OnJoin() 
+        => await InvokeAsync(async () =>
+            {
+                await CloseWaitingRoom.InvokeAsync();
+                await ConfigureOptions.InvokeAsync();
+            });
+    
 }
