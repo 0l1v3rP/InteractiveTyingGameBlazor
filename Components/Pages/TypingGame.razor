@@ -207,6 +207,10 @@
         await InvokeAsync(StateHasChanged);
     }
 
+    public void Dispose()
+       => DisposeComponent();
+
+
     #region jsInvokable
     [JSInvokable]
     public async Task OpenConfiguration()
@@ -325,9 +329,4 @@
     public double GetSeedValue()
         => Session.Seed;
     #endregion
-
-    public void Dispose()
-    {
-        DisposeComponent();
-    }
 }

@@ -76,3 +76,31 @@
     font-size: 100px;
     pointer-events:none;
 }
+
+@media only screen and (max-width: 600px) {
+    .my-video-dimensions {
+        height: 200px !important;
+    }
+}
+
+@media only screen and (min-width: 600px) {
+    .my-video-dimensions {
+        height: 250px !important;
+    }
+}
+
+@media only screen and (min-width: 768px) {
+    .my-video-dimensions {
+        height: 300px !important;
+    }
+}
+
+@media only screen and (min-width: 992px) {
+    .my-video-dimensions {
+        height: 355px !important;
+    }
+}
+
+.my-video-dimensions {
+    width: 100%;
+}
